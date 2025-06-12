@@ -29,6 +29,7 @@ Experimental React And Vite Powered Next JS alternative focused on SPA experienc
 - [ ] Image Optimization
 - [ ] PWA Capabilities
 - [ ] Rendering Modes (SSG)
+- [ ] Markdown Support
 - [ ] CLI Tooling
 - [ ] Shipping
 - [ ] Built-in Utilities
