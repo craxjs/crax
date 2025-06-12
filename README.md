@@ -1,17 +1,41 @@
+<div align="center">
+  <a href="https://crax.js.org">
+    <picture>
+      <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/craxjs/crax/main/assets/Icon-192-dark-bg-circle.png">
+      <img alt="CRAX logo" src="https://raw.githubusercontent.com/craxjs/crax/main/assets/Icon-192-white-bg-circle.png" height="128">
+    </picture>
+  </a>
+
+  <h1>CRAX - Create React App Xtended</h1>
+
+  <p><strong>Experimental React + Vite Powered Alternative to Next.js — built for speed, simplicity, and SPA-first experiences.</strong></p>
+
+  <a href="https://github.com/craxjs/crax"><img alt="GitHub stars" src="https://img.shields.io/github/stars/craxjs/crax?style=for-the-badge&labelColor=000000&logo=github"></a>
+  <a href="https://www.npmjs.com/package/crax"><img alt="NPM version" src="https://img.shields.io/npm/v/crax.svg?style=for-the-badge&labelColor=000000&logo=npm"></a>
+  <a href="https://github.com/craxjs/crax/blob/main/LICENSE"><img alt="License" src="https://img.shields.io/npm/l/crax.svg?style=for-the-badge&labelColor=000000"></a>
+  <a href="https://github.com/craxjs/crax/discussions"><img alt="Join the Community" src="https://img.shields.io/badge/Join%20the%20Community-blueviolet.svg?style=for-the-badge&logo=React&labelColor=000000&logoWidth=20"></a>
+</div>
+
+---
+
 # 🪶 CRAX - Create React App Xtended
 
-Experimental React And Vite Powered Next JS alternative focused on SPA experience, staying minimal and simplicity with just the right features baked in.
+**Experimental React and Vite powered alternative to Next.js**, focused on SPA experience, simplicity, and just the right features baked in.
 
-👾 Purely Open Source And Community Driven, No Big Influence!
+> 👾 **Purely Open Source & Community Driven. No Big Influence!**
+
+---
 
 ## 🚔 Main Features
 
-- SPA & PWA Capabilities By Default
-- View Transitions (optional & Coming Soon!)
-- File Based Routing
-- Image Optimization
-- Rendering Modes (CSR & SSG)
-- Built-in Utilities (State Management, Data Fetching, Etc.)
+- ⚡️ SPA & PWA Capabilities by Default
+- ✨ View Transitions *(optional & coming soon)*
+- 🗂️ File-based Routing
+- 🖼️ Image Optimization
+- 🧠 Rendering Modes *(CSR & SSG)*
+- 🧩 Built-in Utilities *(State Management, Data Fetching, etc.)*
+
+---
 
 ## 🛠️ Main Stack
 
@@ -22,11 +46,13 @@ Experimental React And Vite Powered Next JS alternative focused on SPA experienc
 - Shadcn UI
 - TypeScript
 
-## Roadmap
+---
 
-- [X] Initial Setup
-- [X] Markdown Support
-- [ ] File Based Routing
+## 🧭 Roadmap
+
+- [x] Initial Setup
+- [x] Markdown Support
+- [ ] File-based Routing
 - [ ] Image Optimization
 - [ ] PWA Capabilities
 - [ ] Rendering Modes (SSG)
@@ -34,11 +60,24 @@ Experimental React And Vite Powered Next JS alternative focused on SPA experienc
 - [ ] Shipping
 - [ ] Built-in Utilities
 - [ ] Documentation
-- [ ] Make This LLM Friendly (lovable, bolt, etc.)
-- [ ] Testing Via Vitest
+- [ ] Make This LLM Friendly *(Lovable, Bolt, etc.)*
+- [ ] Testing via Vitest
 - [ ] Docker Image
 - [ ] View Transitions
 
+---
+
 ## ⚙️ Contributing
 
-Work in progress, more of a weekend project, raised due to frustration with Next Js heaviness when developing and slow reloads and yeah the feeling that it's too much overhead, so hit the issues tab and say something or make a PR, all good. No much rules so long as nothing destroys the simplicity!
+This is a passion project — started out of frustration with Next.js’ heaviness during dev, slow reloads, and general overhead.
+
+> Want something lightweight and productive? This might be it.
+
+Feel free to hit the **issues** tab, drop feedback, or open a **PR**.
+No strict rules — just don’t ruin the simplicity. ❤️
+
+---
+
+## 📜 License
+
+[MIT](./LICENSE)
