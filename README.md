@@ -22,6 +22,22 @@ Experimental React And Vite Powered Next JS alternative focused on SPA experienc
 - Shadcn UI
 - TypeScript
 
+## Roadmap
+
+- [ X ] Initial Setup
+- [ ] File Based Routing
+- [ ] Image Optimization
+- [ ] PWA Capabilities
+- [ ] Rendering Modes (SSG)
+- [ ] CLI Tooling
+- [ ] Shipping
+- [ ] Built-in Utilities
+- [ ] Documentation
+- [ ] Make This LLM Friendly (lovable, bolt, etc.)
+- [ ] Testing Via Vitest
+- [ ] Docker Image
+- [ ] View Transitions
+
 ## ⚙️ Contributing
 
 Work in progress, more of a weekend project, raised due to frustration with Next Js heaviness when developing and slow reloads and yeah the feeling that it's too much overhead, so hit the issues tab and say something or make a PR, all good. No much rules so long as nothing destroys the simplicity!
