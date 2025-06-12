@@ -24,7 +24,7 @@ Experimental React And Vite Powered Next JS alternative focused on SPA experienc
 
 ## Roadmap
 
-- [ X ] Initial Setup
+- [X] Initial Setup
 - [ ] File Based Routing
 - [ ] Image Optimization
 - [ ] PWA Capabilities
