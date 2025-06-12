@@ -8,8 +8,6 @@
 
   <h1>CRAX - Create React App Xtended</h1>
 
-  <p><strong>Experimental React + Vite Powered Alternative to Next.js — built for speed, simplicity, and SPA-first experiences.</strong></p>
-
   <a href="https://github.com/craxjs/crax"><img alt="GitHub stars" src="https://img.shields.io/github/stars/craxjs/crax?style=for-the-badge&labelColor=000000&logo=github"></a>
   <a href="https://www.npmjs.com/package/crax"><img alt="NPM version" src="https://img.shields.io/npm/v/crax.svg?style=for-the-badge&labelColor=000000&logo=npm"></a>
   <a href="https://github.com/craxjs/crax/blob/main/LICENSE"><img alt="License" src="https://img.shields.io/npm/l/crax.svg?style=for-the-badge&labelColor=000000"></a>
@@ -18,9 +16,13 @@
 
 ---
 
-# 🪶 CRAX - Create React App Xtended
+## Built for speed, simplicity, and SPA-first experiences.
 
-**Experimental React and Vite powered alternative to Next.js**, focused on SPA experience, simplicity, and just the right features baked in.
+**Coming Soon**, still in early development and experimental, but any time you will be able to run.
+
+```bash
+npx create-crax-app your-cool-app
+```
 
 > 👾 **Purely Open Source & Community Driven. No Big Influence!**
 
