@@ -47,6 +47,9 @@ my-app/
 │   ├── pages/
 │   │   ├── page.tsx        # Home page -> /
 │   │   └── not-found.tsx   # 404 page
+│   ├── stores/             # Centralized state
+│   │   └── index.ts        # All stores in one file (or split per feature)
+│   ├── components/         # Shared UI components
 │   ├── App.tsx             # Root component, QueryClient setup
 │   ├── main.tsx            # Entry point
 │   └── index.css           # Global styles
@@ -54,6 +57,13 @@ my-app/
 ├ vite.config.ts            # Vite config (do not touch)
 └ package.json
 ```
+
+## Conventions
+
+- **Import aliases.** Always use `@/` for src imports. `@/components/Button` not `../../components/Button`. The alias is preconfigured in `tsconfig.json`.
+- **Centralize stores.** Put stores in `src/stores/`. Single file for small projects, separate files per feature for larger ones. Don't scatter `createStore` calls across page files.
+- **Don't remove modules unnecessarily.** The framework is minimal. Keep `.crax/` modules unless they cause build errors or you genuinely don't use them.
+- **Configure via `crax.config.mjs`.** Image sizes, OG settings, PWA options — all go in config, not framework source.
 
 ## Add a new page
 

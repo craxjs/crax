@@ -6,6 +6,31 @@ title: State Management
 
 Crax includes a simple global state management solution built on top of React's `useSyncExternalStore`. No external dependencies, no boilerplate.
 
+## Store Organization
+
+**Small projects** — single file `src/stores/index.ts`:
+
+```typescript
+// src/stores/index.ts
+import { createStore } from '@crax/store'
+
+export const themeStore = createStore<'light' | 'dark'>('light')
+export const authStore = createStore({ user: null, isLoggedIn: false })
+export const cartStore = createStore<{ id: number; qty: number }[]>([])
+```
+
+**Larger projects** — separate files per feature:
+
+```
+src/stores/
+├── index.ts      # Re-exports
+├── auth.ts       # Auth-related state
+├── cart.ts       # Cart state
+└── theme.ts      # UI preferences
+```
+
+Always import from `@/stores/`, never scatter `createStore` calls across page files.
+
 ## Creating a Store
 
 ```typescript
@@ -33,6 +58,8 @@ export default function ThemeToggle() {
   )
 }
 ```
+
+Always use the `@/` import alias (configured in tsconfig). Never use relative paths like `../../`.
 
 ## Side Effects
 

@@ -77,6 +77,13 @@ Export a default React component and it becomes a route. Layouts, loading states
 
 The `.crax/` source is always available to inspect, tweak, extend, or replace any part of the framework.
 
+## Conventions
+
+- **Import aliases.** Always use `@/` for src imports (`@/components/Button`). Never use relative paths like `../../`.
+- **Store organization.** Centralize stores in `src/stores/`. One file for small projects (`src/stores/index.ts`), separate files for larger ones (`src/stores/cart.ts`, `src/stores/auth.ts`).
+- **Don't remove modules unnecessarily.** The framework is minimal. Keep `.crax/` modules unless they cause build errors or you genuinely don't use them. This keeps upgrades simple.
+- **Configure via `crax.config.mjs`.** Image sizes, OG settings, PWA options — all go in config, not framework source.
+
 ## Main Features
 
 - File-based routing with layouts, dynamic segments, and MDX pages
