@@ -139,7 +139,7 @@ export default function Home() {
             <span className="highlight">Crax</span>
           </motion.h1>
           <motion.p className="hero-tagline" variants={fadeUp}>
-            A lightweight React framework built on Vite. A Next.js alternative that brings back the simplicity of Create React App. Frontend should not require a server, edge functions, or complex caching layers to render a page. Most apps are client-side. Crax is built for that reality.
+            A lightweight React framework built on Vite. A Next.js alternative that brings back the simplicity of Create React App. And argues that frontend should just be frontend.
           </motion.p>
           <motion.div className="hero-actions" variants={fadeUp}>
             <motion.a
