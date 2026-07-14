@@ -1,5 +1,6 @@
 import { join } from "node:path";
 import { defineConfig } from "@rspress/core";
+import { pluginLlms } from "@rspress/plugin-llms";
 
 export default defineConfig({
   root: join(__dirname, "docs"),
@@ -9,6 +10,7 @@ export default defineConfig({
   icon: "/rspress-icon.png",
   logo: "/crax/crax-logo.png",
   logoText: "Crax",
+  lastUpdated: true,
   themeConfig: {
     socialLinks: [
       {
@@ -18,7 +20,9 @@ export default defineConfig({
       },
     ],
     search: true,
+    llmsUI: true,
   },
+  plugins: [pluginLlms()],
   markdown: {
     showLineNumbers: true,
     shiki: {
