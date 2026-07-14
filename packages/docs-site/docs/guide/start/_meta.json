@@ -1,4 +1,5 @@
 [
   { "type": "file", "name": "introduction", "label": "Introduction" },
-  { "type": "file", "name": "getting-started", "label": "Getting Started" }
+  { "type": "file", "name": "getting-started", "label": "Getting Started" },
+  { "type": "file", "name": "comparison", "label": "Framework Comparison" }
 ]
