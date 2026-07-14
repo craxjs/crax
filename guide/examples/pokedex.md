@@ -1,0 +1,77 @@
+# Pokedex Example
+
+A full-featured Pokedex app built with Crax. Uses the PokeAPI to browse, search, and favorite Pokemon.
+
+**Source code**: [github.com/craxjs/crax/packages/example](https://github.com/craxjs/crax/tree/main/packages/example)
+
+## What it demonstrates
+
+| Feature | How it is used |
+|---------|---------------|
+| File-based routing | `/`, `/pokemon`, `/pokemon/[id]`, `/favorites` |
+| Dynamic routes | `[id].tsx` reads `router.params.id` |
+| React Query | Every page fetches data via `useQuery` |
+| Global state | Favorites stored with `createStore`, persisted across pages |
+| Link prefetching | `prefetch="smart"` on all nav links |
+| SEO | `<Head>` sets per-page title and meta tags |
+| Modal quick view | Home page card click opens a detail overlay |
+| Pagination | 12 Pokemon per page (home), 20 per page (all) |
+| 404 catch-all | `/nonexistent` shows a 404 page with a link home |
+
+## Pages
+
+**Home** (`/`) - Grid of 12 Pokemon cards with pagination. Click a card for a quick-view modal with stats, types, and a link to the full detail page.
+
+**All Pokemon** (`/pokemon`) - Full list, 20 per page with pagination. Each card links to the detail page with `prefetch="foresight"`.
+
+**Detail** (`/pokemon/[id]`) - Full Pokemon artwork, types, height, weight, base stat bars, and a heart button to toggle favorites. Uses `<Head>` for per-page SEO.
+
+**Favorites** (`/favorites`) - Shows all favorited Pokemon. Reads from the global store. Empty state links to the Pokemon list.
+
+## Key files
+
+```
+src/
+  pages/
+    page.tsx                  # Home, modal quick view
+    not-found.tsx             # 404 page
+    pokemon/
+      page.tsx                # All Pokemon list
+      [id].tsx                # Pokemon detail
+    favorites/
+      page.tsx                # Favorites list
+  stores/
+    favorites.ts              # createStore<number[]>([]), toggleFavorite()
+  lib/
+    api.ts                    # fetchPokemonList, fetchPokemon, pokemonArtwork
+```
+
+## State management
+
+Favorites are stored in a single global store:
+
+```ts
+import { createStore } from '@crax/store'
+
+export const favoritesStore = createStore<number[]>([])
+
+export function toggleFavorite(id: number) {
+  const current = favoritesStore.value
+  favoritesStore.value = current.includes(id)
+    ? current.filter((n) => n !== id)
+    : [...current, id]
+}
+```
+
+Any component can read favorites with `useStore(favoritesStore)` and get reactive updates when the store changes.
+
+## Running it
+
+```bash
+git clone https://github.com/craxjs/crax.git
+cd crax/packages/example
+npm install
+npm run dev
+```
+
+The app runs at `http://localhost:5173`.

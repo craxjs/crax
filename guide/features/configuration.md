@@ -1,0 +1,74 @@
+# Configuration
+
+Crax uses a `crax.config.mjs` file at the root of your project for all configuration.
+
+## Default Config
+
+```js
+// crax.config.mjs
+/** @type {import('./.crax/types/config.types.ts').CraxConfig} */
+export default {
+  siteUrl: 'https://example.com',
+  pagesDir: 'src/pages',
+  pageExtensions: ['tsx'],
+
+  images: {
+    deviceSizes: [320, 640, 960, 1280],
+    formats: ['webp', 'avif'],
+    defaultProps: {
+      sizes: '(max-width: 640px) 100vw, 640px',
+      loading: 'lazy',
+      decoding: 'async',
+    },
+  },
+}
+```
+
+## Config Options
+
+### `siteUrl`
+
+Your site's public URL. Used for canonical URLs and SEO metadata.
+
+### `pagesDir`
+
+Directory where your page files live. Defaults to `src/pages`.
+
+### `pageExtensions`
+
+File extensions treated as page routes. Defaults to `['tsx']`.
+
+### `images`
+
+Image optimization settings:
+
+| Option | Type | Description |
+|--------|------|-------------|
+| `deviceSizes` | `number[]` | Pixel widths for srcset generation |
+| `formats` | `string[]` | Output formats (`'webp'`, `'avif'`, etc.) |
+| `defaultProps.sizes` | `string` | Default `sizes` attribute |
+| `defaultProps.loading` | `'lazy' \| 'eager'` | Default loading behavior |
+| `defaultProps.decoding` | `'async' \| 'sync' \| 'auto'` | Default decoding |
+
+### `pwa`
+
+Progressive Web App configuration (see [PWA guide](/crax/guide/features/pwa.md)):
+
+```js
+export default {
+  pwa: {
+    enabled: true,
+    name: 'My App',
+    shortName: 'App',
+    themeColor: '#f59e0b',
+    backgroundColor: '#ffffff',
+    iconPath: 'logo.png',
+    startUrl: '/',
+    display: 'standalone',
+  },
+}
+```
+
+## How Config is Loaded
+
+Crax deep-merges your `crax.config.mjs` over the default config at startup. You only need to specify the values you want to override.

@@ -1,0 +1,82 @@
+# Getting Started
+
+**CRAX** (Create React App Xtended) is a lightweight React framework built on Vite. It's a Next.js alternative that brings back the simplicity of Create React App. This guide takes you from zero to a running app in a couple of minutes.
+
+## Prerequisites
+
+* **Node.js** 18 or higher
+* **pnpm** (recommended) or npm/yarn
+
+## Create your app
+
+```bash
+npx @craxjs/crax create my-app
+```
+
+This scaffolds a new directory called `my-app` with the complete Crax starter project.
+
+## Start the dev server
+
+```bash
+cd my-app
+pnpm install
+pnpm dev
+```
+
+Your app is now running at `http://localhost:5173`.
+
+## Project structure
+
+```
+my-app/
+├── .crax/              # Framework source, yours to read and modify
+│   ├── router/         # File-based routing
+│   ├── store/          # Global state (createStore, useStore)
+│   ├── image/          # Image and Picture components
+│   ├── seo/            # Head component for document metadata
+│   ├── hooks/          # useForesight and other hooks
+│   ├── pwa/            # PWA icon and manifest generation
+│   ├── scripts/        # Build-time scripts
+│   ├── types/          # Shared TypeScript types
+│   └── utils/          # Internal utilities
+├ src/
+│   ├── pages/
+│   │   ├── page.tsx        # Home page -> /
+│   │   └── not-found.tsx   # 404 page
+│   ├── stores/             # Centralized state
+│   │   └── index.ts        # All stores in one file (or split per feature)
+│   ├── components/         # Shared UI components
+│   ├── App.tsx             # Root component, QueryClient setup
+│   ├── main.tsx            # Entry point
+│   └── index.css           # Global styles
+├ crax.config.mjs           # Your config
+├ vite.config.ts            # Vite config (do not touch)
+└ package.json
+```
+
+## Conventions
+
+* **Import aliases.** Always use `@/` for src imports. `@/components/Button` not `../../components/Button`. The alias is preconfigured in `tsconfig.json`.
+* **Centralize stores.** Put stores in `src/stores/`. Single file for small projects, separate files per feature for larger ones. Don't scatter `createStore` calls across page files.
+* **Don't remove modules unnecessarily.** The framework is minimal. Keep `.crax/` modules unless they cause build errors or you genuinely don't use them.
+* **Configure via `crax.config.mjs`.** Image sizes, OG settings, PWA options — all go in config, not framework source.
+
+## Add a new page
+
+Create `src/pages/about.tsx`:
+
+```tsx
+export default function AboutPage() {
+  return <h1>About</h1>
+}
+```
+
+Navigate to `/about` and it works. No config required.
+
+## Build for production
+
+```bash
+pnpm build
+```
+
+Output goes to `dist/`. Deploy to any static host (Vercel, Netlify, Cloudflare Pages, etc.) and it works. Open source and no vendor lock-in.

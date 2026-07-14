@@ -1,0 +1,67 @@
+# Features
+
+Everything included in a Crax project out of the box.
+
+## Why Crax?
+
+Crax is a Next.js alternative for developers who believe frontend should not require a server to render a page. Before the React ecosystem became dominated by full-stack frameworks and server-side complexity, Create React App offered something simple: a clean foundation that just worked. Crax brings that simplicity back.
+
+No SSR, no ISR, no server components, no server actions. Just React, Vite, and the tools you already know. Most applications are client-side. They need fast development, predictable builds, and cheap deployment. Crax is built for that reality.
+
+The entire framework source ships into your project under `.crax/`. Every line is owned, readable, and modifiable. This is the same approach shadcn introduced for components, applied to the whole framework layer.
+
+Built on proven foundations: React 19, Vite 7, React Router, TanStack Query, and Tailwind CSS v4. These are well-maintained, widely adopted, and backed by large communities.
+
+## Routing
+
+File-based routing via React Router. Drop a file in `src/pages/` and it becomes a route. Dynamic segments, nested layouts, catch-all routes, and special files for 404, error, and loading states.
+
+[Routing docs](/crax/guide/features/routing.md)
+
+## State Management
+
+Global state with `createStore` and `useStore`. Built on `useSyncExternalStore`. Supports subscriptions, history tracking, and store locking. No external dependencies.
+
+[State Management docs](/crax/guide/features/state-management.md)
+
+## Data Fetching
+
+React Query pre-configured with sensible defaults and DevTools. Route-level data loading via React Router loaders.
+
+[Data Fetching docs](/crax/guide/features/data-fetching.md)
+
+## Image Optimization
+
+`Image` and `Picture` components for CDN-aware responsive images. Automatic srcset generation, lazy loading, and blur-up placeholders. Powered by `@unpic/react` and `vite-imagetools`.
+
+[Image Optimization docs](/crax/guide/features/image-optimization.md)
+
+## SEO
+
+Declarative document head management via the `Head` component. Open Graph, Twitter Cards, canonical URLs, language alternates, and JSON-LD structured data.
+
+[SEO docs](/crax/guide/features/seo.md)
+
+## View Transitions
+
+Native browser page transitions via `useViewTransition` hook. Also available as a `viewTransition` prop on `Link`. Falls back to a plain callback on unsupported browsers.
+
+[View Transitions docs](/crax/guide/features/view-transitions.md)
+
+## Link Prefetching
+
+Three prefetch strategies on the `Link` component: `smart` (viewport-based), `foresight` (cursor trajectory prediction), and `none`.
+
+[Routing docs](/crax/guide/features/routing.md#navigation)
+
+## PWA
+
+Progressive Web App support via `crax.config.mjs`. Icon generation, manifest generation, and optional service worker integration via `vite-plugin-pwa`.
+
+[PWA docs](/crax/guide/features/pwa.md)
+
+## Deployment
+
+Dockerfile and Caddy config included. Build to `dist/`, deploy to any static host or CDN.
+
+[Deploy docs](/crax/guide/features/deploy.md)

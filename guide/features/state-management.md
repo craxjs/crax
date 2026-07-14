@@ -1,0 +1,125 @@
+# State Management
+
+Crax includes a simple global state management solution built on top of React's `useSyncExternalStore`. No external dependencies, no boilerplate.
+
+## Store Organization
+
+**Small projects** — single file `src/stores/index.ts`:
+
+```typescript
+// src/stores/index.ts
+import { createStore } from '@crax/store'
+
+export const themeStore = createStore<'light' | 'dark'>('light')
+export const authStore = createStore({ user: null, isLoggedIn: false })
+export const cartStore = createStore<{ id: number; qty: number }[]>([])
+```
+
+**Larger projects** — separate files per feature:
+
+```
+src/stores/
+├── index.ts      # Re-exports
+├── auth.ts       # Auth-related state
+├── cart.ts       # Cart state
+└── theme.ts      # UI preferences
+```
+
+Always import from `@/stores/`, never scatter `createStore` calls across page files.
+
+## Creating a Store
+
+```typescript
+// src/stores/theme.ts
+import { createStore } from '@crax/store'
+
+export const themeStore = createStore<'light' | 'dark'>('light')
+```
+
+## Using a Store
+
+`useStore` returns a `[state, setState]` tuple, similar to `useState`:
+
+```tsx
+import { useStore } from '@crax/store'
+import { themeStore } from '@/stores/theme'
+
+export default function ThemeToggle() {
+  const [theme, setTheme] = useStore(themeStore)
+
+  return (
+    <button onClick={() => setTheme(t => t === 'light' ? 'dark' : 'light')}>
+      {theme}
+    </button>
+  )
+}
+```
+
+Always use the `@/` import alias (configured in tsconfig). Never use relative paths like `../../`.
+
+## Side Effects
+
+`useStoreEffect` runs a side effect when store values change:
+
+```tsx
+import { useStoreEffect } from '@crax/store'
+import { themeStore } from '@/stores/theme'
+
+export default function ThemePersister() {
+  useStoreEffect(() => {
+    localStorage.setItem('theme', themeStore.value)
+    document.body.className = themeStore.value
+  }, [themeStore])
+
+  return null
+}
+```
+
+## Store API
+
+### Direct access
+
+Stores can be read and written outside of React components:
+
+```typescript
+// Read
+console.log(themeStore.value) // 'light'
+
+// Write
+themeStore.value = 'dark'
+
+// Functional update
+themeStore.update(t => t === 'light' ? 'dark' : 'light')
+```
+
+### History
+
+```typescript
+themeStore.value = 'dark'
+themeStore.value = 'light'
+console.log(themeStore.history) // ['light', 'dark']
+```
+
+### Locking
+
+Prevent modifications during critical operations:
+
+```typescript
+const lockId = themeStore.lock()
+try {
+  // safe operations
+} finally {
+  themeStore.unlock(lockId)
+}
+```
+
+## Subscribing
+
+```typescript
+const unsubscribe = themeStore.subscribe(() => {
+  console.log('theme changed:', themeStore.value)
+})
+
+// Later
+unsubscribe()
+```

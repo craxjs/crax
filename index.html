@@ -3,15 +3,15 @@
   <head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Crax</title>
-<script>{;const saved = localStorage.getItem('rspress-theme-appearance');const preferDark = window.matchMedia('(prefers-color-scheme: dark)').matches;const isDark = !saved || saved === 'auto' ? preferDark : saved === 'dark';document.documentElement.classList.toggle('dark', isDark);document.documentElement.classList.toggle('rp-dark', isDark);document.documentElement.style.colorScheme = isDark ? 'dark' : 'light';}</script>
-<link href="/crax/static/css/styles.91a9cb085a.css" rel="stylesheet">
-<script defer src="/crax/static/js/styles.5306dbcdf8.js"></script>
+<script>{;const saved = localStorage.getItem('rspress-theme-appearance');const preferDark = window.matchMedia('(prefers-color-scheme: dark)').matches;const defaultTheme = 'auto';const theme = saved === 'light' || saved === 'dark' || saved === 'auto' ? saved : defaultTheme;const isDark = theme === 'auto' ? preferDark : theme === 'dark';document.documentElement.classList.toggle('dark', isDark);document.documentElement.classList.toggle('rp-dark', isDark);document.documentElement.style.colorScheme = isDark ? 'dark' : 'light';}</script>
+<link href="/crax/static/css/styles.3743b16395.css" rel="stylesheet">
+<script defer src="/crax/static/js/styles.27e71fdb66.js"></script>
 <script defer src="/crax/static/js/lib-react.37cacea705.js"></script>
-<script defer src="/crax/static/js/lib-router.33200f5d3e.js"></script>
-<script defer src="/crax/static/js/2930.d31af03bed.js"></script>
-<script defer src="/crax/static/js/index.f13d315efb.js"></script>
+<script defer src="/crax/static/js/lib-router.42e5d047de.js"></script>
+<script defer src="/crax/static/js/5469.e3349cc9bf.js"></script>
+<script defer src="/crax/static/js/index.61e1ae0a35.js"></script>
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
-<meta name="generator" content="Rspress v2.0.14">
+<meta name="generator" content="Rspress v2.0.17">
 <link rel="icon" href="/crax/rspress-icon.png">
 <meta property="og:type" content="website">
 <meta property="og:title" content="Crax">

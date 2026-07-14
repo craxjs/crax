@@ -1,0 +1,68 @@
+# Introduction
+
+**CRAX** (Create React App Xtended) is a lightweight React framework built on Vite. It's a Next.js alternative for developers who believe frontend should just be frontend.
+
+Before the React ecosystem became dominated by full-stack frameworks and server-side complexity, Create React App offered something simple: a clean foundation that just worked. Crax brings that simplicity back. No SSR, no ISR, no server components, no server actions. Just React, Vite, and the tools you already know.
+
+Most applications don't need server rendering. They need fast development, predictable builds, and cheap deployment. Crax delivers that by staying focused on what frontend frameworks should do: build client-side applications efficiently.
+
+```bash
+npx @craxjs/crax create my-app
+```
+
+## Framework source included
+
+Most frameworks ship as a black box. Applications depend on them, update them, and debug around them when they break. The source that runs the app lives somewhere in `node_modules`, unreadable in practice.
+
+Crax works differently. When a project is scaffolded, the entire framework is copied into the project under `.crax/`. It is not a dependency, it is project code. Every line is readable, modifiable, and removable.
+
+One package is published to npm: `@craxjs/crax`. Everything else ships as source.
+
+Add features as needed. Contribute back if they align with the framework's goals.
+
+## No new primitives to learn
+
+Crax does not invent its own data fetching layer, its own router, or its own animation system. It takes what the React ecosystem has already built and wires it together with conventions.
+
+* Routing is React Router (enhanced), which most React developers already know.
+* Data fetching is React Query, which most teams already use.
+* State management is a thin wrapper with no external dependencies.
+
+The learning surface is small because it is built on tools already familiar to React developers.
+
+## Built on proven foundations
+
+Crax is built on technologies that power production applications at scale:
+
+* **React 19** - The most widely used UI library
+* **Vite 7** - Fast build tool and dev server
+* **React Router** - Standard routing for React applications
+* **TanStack Query** - Data fetching and cache management
+* **Tailwind CSS v4** - Utility-first CSS framework
+
+These are well-maintained, widely adopted, and backed by large communities. Crax wires them together with conventions, so you get a cohesive framework without betting on experimental tools.
+
+## Fast and light by default
+
+Frameworks with server-side rendering carry significant overhead: large dependency trees, slow dev server startup, and complex caching layers. Most applications don't need that complexity.
+
+Crax is built on Vite. There is no server runtime, no RSC compilation, and no caching layer to understand. Build output goes to `dist/`, deploys to any static host or CDN, and it works. Open source, no vendor lock-in.
+
+## What Crax includes
+
+* File-based routing with layouts, dynamic segments, MDX pages, and special files (`not-found`, `error`, `loading`)
+* `Image` and `Picture` components for CDN-aware image optimization
+* `createStore` for global state with subscriptions, history, and locking
+* `Link` with three prefetch strategies: `smart` (IntersectionObserver), `foresight` (cursor prediction), and `none`
+* React Query pre-configured with sensible defaults and DevTools
+* `useViewTransition` hook for native view transitions with a fallback
+* Tailwind CSS v4 with no config file required
+* A `Dockerfile` and `Caddyfile` for production deployment out of the box
+
+## What Crax is not
+
+* Not a full-stack framework. No API routes, no server actions. Pair it with any backend.
+* Not an SSR or SSG tool. If server-rendered HTML on first load is a hard requirement, Next.js or Astro are better fits.
+* Not a component library. Tailwind v4 is included, shadcn/ui is an optional add-on.
+
+Crax is for client-rendered applications that need a clean foundation, fast tooling, and readable, modifiable framework source. It's the simplicity that Create React App offered, reborn for the modern React ecosystem.
