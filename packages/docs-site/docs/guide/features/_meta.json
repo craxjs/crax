@@ -9,5 +9,6 @@
   { "type": "file", "name": "configuration", "label": "Configuration" },
   { "type": "file", "name": "cli-commands", "label": "CLI Commands" },
   { "type": "file", "name": "pwa", "label": "PWA" },
-  { "type": "file", "name": "deploy", "label": "Deploy" }
+  { "type": "file", "name": "deploy", "label": "Deploy" },
+  { "type": "file", "name": "ssg", "label": "Static Site Generation" }
 ]
