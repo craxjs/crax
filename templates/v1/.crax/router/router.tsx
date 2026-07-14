@@ -6,10 +6,12 @@ import {
   type RouteObject,
   type LoaderFunction,
 } from "react-router-dom"
+import { UnheadProvider } from "@unhead/react/client"
 import { ErrorBoundary } from "./error-boundary"
 import { routeImportMap } from "../utils/enhance-router"
 import { wrapWithOgMeta } from "./og-meta"
 import { wrapWithPwaMeta } from "./pwa-meta"
+import { head } from "../seo/provider"
 import {
   PAGE_GLOB,
   PAGES_DIR,
@@ -210,7 +212,9 @@ export function CraxRouter() {
           The route-level `ErrorBoundary` field above normally handles
           loader/render errors first since it's the nearer boundary. */}
       <Suspense fallback={loadingFallback}>
-        <RouterProvider router={router} />
+        <UnheadProvider head={head}>
+          <RouterProvider router={router} />
+        </UnheadProvider>
       </Suspense>
     </ErrorBoundary>
   )
