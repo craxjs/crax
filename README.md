@@ -1,9 +1,6 @@
 <div align="center">
   <a href="https://crax.js.org">
-    <picture>
-      <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/craxjs/crax/main/assets/Icon-192-dark-bg-circle.png">
-      <img alt="CRAX logo" src="https://raw.githubusercontent.com/craxjs/crax/main/assets/Icon-192-white-bg-circle.png" height="128">
-    </picture>
+    <img alt="CRAX logo" src="https://raw.githubusercontent.com/craxjs/crax/main/assets/crax-logo.png" height="128">
   </a>
 
   <h1>CRAX - Create React App Xtended</h1>
