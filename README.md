@@ -14,9 +14,11 @@
   <a href="https://github.com/craxjs/crax/discussions"><img alt="Join the Community" src="https://img.shields.io/badge/Join%20the%20Community-blueviolet.svg?style=for-the-badge&logo=React&labelColor=000000&logoWidth=20"></a>
 </div>
 
-Crax is a React framework built on Vite. It builds anything React can build, from dashboards and internal tools to marketing sites and full web applications. The entire framework source ships into the project under `.crax/`, so every line is owned, readable, and modifiable.
+Crax is a lightweight React framework built on Vite. It's a Next.js alternative for developers who believe frontend should just be frontend.
 
-Crax is client-side only. No SSR, ISR, or server rendering. If a project needs server rendering, Next.js or Astro are better fits. For everything else, Crax keeps the foundation clean and the deployment simple.
+Before the React ecosystem became dominated by full-stack frameworks and server-side complexity, Create React App offered something simple: a clean foundation that just worked. Crax brings that simplicity back. No SSR, no ISR, no server components, no server actions. Just React, Vite, and the tools you already know.
+
+Most applications don't need server rendering. They need fast development, predictable builds, and cheap deployment. Crax delivers that by staying focused on what frontend frameworks should do: build client-side applications efficiently.
 
 ```bash
 npx @craxjs/crax create my-app
@@ -24,11 +26,13 @@ npx @craxjs/crax create my-app
 
 > Open source and community driven.
 
-## Framework source included
+## Why Crax exists
 
-Most frameworks ship as a black box. Applications depend on them, update them, and debug around them when they break. The source that runs the app lives in `node_modules`, unreadable in practice.
+The React ecosystem shifted toward full-stack frameworks that bundle server rendering, edge functions, and complex caching layers. These tools solve real problems for some applications, but they also introduced significant overhead for everyone else.
 
-Crax copies the entire framework into the project under `.crax/`. It is not a dependency, it is project code. Every line is readable, modifiable, and removable. This is the same approach shadcn introduced for components, applied to the whole framework layer.
+Crax takes a different position: frontend should be cheap to run and cheap to develop. Server paradigms aren't needed most of the time. When they are, pair Crax with a dedicated backend. When they aren't, Crax keeps the foundation clean and the deployment simple.
+
+The entire framework source ships into the project under `.crax/`. Every line is owned, readable, and modifiable. This is the same approach shadcn introduced for components, applied to the whole framework layer.
 
 One package is published to npm: `@craxjs/crax`. Everything else ships as source.
 
@@ -86,7 +90,7 @@ The `.crax/` source is always available to inspect, tweak, extend, or replace an
 
 | | Crax | Next.js |
 |---|---|---|
-| **Target** | Any client-side React application | Full-stack applications with server rendering |
+| **Philosophy** | Frontend-only, simple, cheap to run | Full-stack, feature-rich, server rendering |
 | **Rendering** | CSR, fast, predictable, offline-ready | SSR, SSG, ISR, CSR |
 | **Dev startup** | ~300ms | 2-10s |
 | **Disk footprint** | MBs | 2 GB+ node_modules |
@@ -96,7 +100,7 @@ The `.crax/` source is always available to inspect, tweak, extend, or replace an
 | **Deploy target** | Any static host, Caddy, CDN | Node server / Vercel |
 | **Framework source** | Editable `.crax/` in project | Black box npm package |
 
-Choose Crax when client-side rendering is sufficient and owning the framework source matters. Choose Next.js when server rendering is a hard requirement, or when a single stack for both backend and frontend is preferred.
+Choose Crax when frontend-only is the right choice and owning the framework source matters. Choose Next.js when server rendering is a hard requirement, or when a single stack for both backend and frontend is preferred.
 
 ## What Crax is Not
 

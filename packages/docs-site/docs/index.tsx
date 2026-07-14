@@ -139,7 +139,7 @@ export default function Home() {
             <span className="highlight">Crax</span>
           </motion.h1>
           <motion.p className="hero-tagline" variants={fadeUp}>
-            A React framework built on Vite. Builds anything React can build, with the entire framework source included in every project. Fast startup, minimal footprint, and deploys to any static host.
+            A lightweight React framework built on Vite. A Next.js alternative that brings back the simplicity of Create React App. Frontend should just be frontend.
           </motion.p>
           <motion.div className="hero-actions" variants={fadeUp}>
             <motion.a
