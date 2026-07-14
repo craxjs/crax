@@ -8,7 +8,8 @@
   <a href="https://github.com/craxjs/crax"><img alt="GitHub stars" src="https://img.shields.io/github/stars/craxjs/crax?style=for-the-badge&labelColor=000000&logo=github"></a>
   <a href="https://www.npmjs.com/package/@craxjs/crax"><img alt="NPM version" src="https://img.shields.io/npm/v/@craxjs/crax.svg?style=for-the-badge&labelColor=000000&logo=npm"></a>
   <a href="https://github.com/craxjs/crax/blob/main/LICENSE"><img alt="License" src="https://img.shields.io/npm/l/@craxjs/crax.svg?style=for-the-badge&labelColor=000000"></a>
-  <a href="https://github.com/craxjs/crax/discussions"><img alt="Join the Community" src="https://img.shields.io/badge/Join%20the%20Community-blueviolet.svg?style=for-the-badge&logo=React&labelColor=000000&logoWidth=20"></a>
+  <a href="https://github.com/craxjs/crax/discussions"><img alt="Join the Community" src="https://img.shields.io/badge/Join%20the%20Commu
+  nity-blueviolet.svg?style=for-the-badge&logo=React&labelColor=000000&logoWidth=20"></a>
 </div>
 
 Crax is a lightweight React framework built on Vite. It's a Next.js alternative for developers who believe frontend should just be frontend.

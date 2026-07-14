@@ -1,7 +1,7 @@
 {
   "name": "@craxjs/crax",
-  "version": "0.0.1",
-  "description": "Scaffold a new CRAX project, Vite + React + file-based routing + built-in state management",
+  "version": "1.0.0",
+  "description": "Lightweight React framework built on Vite. A Next.js alternative that brings back the simplicity of Create React App.",
   "type": "module",
   "bin": {
     "crax": "./dist/index.js"
@@ -17,11 +17,30 @@
     "test": "vitest run",
     "test:watch": "vitest"
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/craxjs/crax.git",
+    "directory": "packages/create-crax-app"
+  },
+  "homepage": "https://crax.js.org",
+  "bugs": {
+    "url": "https://github.com/craxjs/crax/issues"
+  },
+  "keywords": [
+    "crax",
+    "react",
+    "vite",
+    "spa",
+    "framework",
+    "nextjs-alternative",
+    "create-react-app",
+    "frontend"
+  ],
+  "author": "Crax Team",
+  "license": "MIT",
   "devDependencies": {
     "tsup": "^8.4.0",
     "typescript": "^5.9.0",
     "vitest": "^3.1.0"
-  },
-  "keywords": ["crax", "react", "vite", "spa", "scaffold"],
-  "license": "MIT"
+  }
 }
