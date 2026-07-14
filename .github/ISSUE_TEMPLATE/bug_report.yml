@@ -1,0 +1,17 @@
+name: 🐛 Bug Report
+description: Report something that isn't working
+labels: [bug]
+body:
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: A clear description of the problem.
+      placeholder: Describe the bug...
+    validations:
+      required: true
+  - type: input
+    id: reproduction
+    attributes:
+      label: Link to reproduction
+      placeholder: https://stackblitz.com/...
