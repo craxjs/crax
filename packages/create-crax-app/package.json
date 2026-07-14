@@ -1,6 +1,6 @@
 {
   "name": "@craxjs/crax",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Lightweight React framework built on Vite. A Next.js alternative that brings back the simplicity of Create React App.",
   "type": "module",
   "bin": {
