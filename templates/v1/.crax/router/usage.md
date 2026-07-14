@@ -29,7 +29,7 @@ export function App() {
 ## Exports
 
 ```tsx
-import { CraxRouter, Link, Navigate, Outlet, useRouter } from "@crax/router"
+import { CraxRouter, Link, Navigate, Outlet, useRouter, prefetch } from "@crax/router"
 ```
 
 | Export | Purpose |
@@ -39,6 +39,7 @@ import { CraxRouter, Link, Navigate, Outlet, useRouter } from "@crax/router"
 | `<Navigate>` | Declarative redirect (e.g. auth guards) |
 | `<Outlet>` | Layout child rendering |
 | `useRouter()` | Programmatic nav + location + params |
+| `prefetch({ path })` | Manually warm a route's chunk ahead of `router.push()` |
 
 ## File Conventions
 
@@ -59,7 +60,7 @@ src/pages/
 │       └── product-card.tsx
 ├── not-found.tsx          → * (404 catch-all)
 ├── error.tsx              → (global error boundary fallback)
-└── loading.tsx            → (global suspense fallback)
+└── loading.tsx            → (suspense fallback, applied per-route)
 ```
 
 ### Co-located Components
@@ -112,13 +113,19 @@ export default function DashboardLayout() {
 }
 ```
 
+### Loading & Suspense
+
+Every page (and every layout) is code-split and rendered inside its own `Suspense` boundary. Navigating to a route whose chunk hasn't loaded yet only suspends that route's slot — a layout stays mounted (sidebar, nav, etc. don't flicker) while its `<Outlet />` content shows the fallback.
+
+Drop a `src/pages/loading.tsx` to use your own fallback everywhere; without one, Crax renders a small built-in pulse indicator (no external deps, respects `prefers-reduced-motion`). There's also a top-level `Suspense` around the whole router as a last-resort catch, but in practice the per-route boundary is nearer and handles it first.
+
 ### Special Files
 
 | File | Purpose |
 |------|---------|
 | `not-found.tsx` | 404 page (catch-all route) |
 | `error.tsx` | Error boundary fallback |
-| `loading.tsx` | Suspense loading fallback |
+| `loading.tsx` | Suspense loading fallback (per-route, see below) |
 
 ## useRouter()
 
@@ -144,6 +151,18 @@ function MyPage() {
 }
 ```
 
+Programmatic navigation via `router.push()` doesn't prefetch on its own. Warm the route first with `prefetch()` when you know where the user is headed (e.g. right before a form submit that redirects):
+
+```tsx
+import { useRouter, prefetch } from "@crax/router"
+
+async function onSubmit() {
+  prefetch({ path: "/dashboard" })
+  await saveForm()
+  router.push("/dashboard")
+}
+```
+
 ## Link
 
 `<Link>` wraps react-router-dom's `Link`. Uses `to` prop:
@@ -156,6 +175,16 @@ import { Link } from "@crax/router"
 // Replace history entry
 <Link to="/login" replace>Sign In</Link>
 ```
+
+### Hover prefetch
+
+Every `<Link>` (both `smart` and `foresight` strategies) also warms its route's chunk on `onPointerEnter`, `onFocus`, and `onPointerDown` — hovering, tabbing to, or pressing down on a link fires the prefetch immediately, well before the click/navigation completes. `smart` additionally keeps its IntersectionObserver (100px viewport margin) as a baseline for links that are never hovered. All triggers share one dedupe set keyed by path, so a link that's hovered, focused, and scrolled into view still only fetches its chunk once.
+
+Prefetching goes through the same `prefetch({ path })` helper exported from `@crax/router`, so you can call it manually for programmatic navigation (see `useRouter()` above) — it dedupes against the same set the `<Link>` triggers use.
+
+### `viewTransition`
+
+`<Link viewTransition>` is automatically disabled when the user's OS has `prefers-reduced-motion: reduce` set, regardless of the prop value passed.
 
 ## Auth Example
 

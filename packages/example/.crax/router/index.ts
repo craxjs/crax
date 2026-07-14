@@ -1,5 +1,6 @@
 export { CraxRouter } from "./router"
 export { Link } from "./link"
 export { useRouter } from "./use-router"
+export { prefetchRoute as prefetch } from "./prefetch"
 export { Outlet, Navigate } from "react-router-dom"
 export type { CraxLinkProps } from "./types"

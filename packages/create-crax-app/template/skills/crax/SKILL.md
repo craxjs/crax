@@ -90,9 +90,11 @@ File-based via React Router. Drop a file in `src/pages/` and it becomes a route.
 | File | Purpose |
 |------|---------|
 | `layout.tsx` | Wraps all sibling/nested routes in directory |
-| `loading.tsx` | Shown while route loads |
+| `loading.tsx` | Shown while route loads (per-route Suspense; layout stays mounted) |
 | `error.tsx` | Error boundary for route |
 | `not-found.tsx` | 404 page |
+
+Every page and layout renders inside its own `Suspense` boundary, so a cache-miss navigation only suspends that route's slot, not the whole app or its parent layout. No `loading.tsx`? Crax falls back to a tiny built-in pulse indicator.
 
 **Layout example:**
 
@@ -119,16 +121,16 @@ Extends React Router's `Link` with prefetching and view transitions.
 ```tsx
 import { Link } from '@crax/router'
 
-// Smart (default): prefetch when link enters viewport
+// Smart (default): prefetch on hover/focus/pointerdown, or when link enters viewport
 <Link to="/dashboard">Dashboard</Link>
 
-// Foresight: hover + cursor trajectory prediction
+// Foresight: hover + cursor trajectory prediction (+ pointerdown fallback)
 <Link to="/pricing" prefetch="foresight">Pricing</Link>
 
 // None: plain react-router link, no prefetch
 <Link to="/terms" prefetch="none">Terms</Link>
 
-// With view transition
+// With view transition (auto-disabled if the OS prefers reduced motion)
 <Link to="/about" viewTransition>About</Link>
 ```
 
@@ -136,9 +138,11 @@ import { Link } from '@crax/router'
 
 | Strategy | Behavior |
 |----------|----------|
-| `smart` | Prefetch when link enters viewport (100px margin) |
-| `foresight` | Predict intent from cursor movement on hover |
+| `smart` | Prefetch on hover, focus, or pointerdown; also when link enters viewport (100px margin) as a baseline |
+| `foresight` | Predict intent from cursor trajectory; hover and pointerdown also prefetch directly |
 | `none` | No prefetching, plain react-router link |
+
+All triggers share one dedupe set keyed by route path — a link that's hovered, focused, and scrolled into view only fetches its chunk once. Call the exported `prefetch({ path })` to warm a route manually (e.g. before `router.push()`); it dedupes against the same set.
 
 **Additional props:** `hitSlop`, `unregisterOnCallback`, `name` (for foresight tracking).
 
@@ -343,9 +347,21 @@ import { Image, Picture } from '@crax/image'
 </Picture>
 ```
 
-**Props (Image):** `src`, `alt`, `width`, `height`, `sizes`, `loading`, `decoding`, `className`, `priority` (disables lazy loading).
+**Props (Image):** `src`, `alt`, `width`, `height`, `sizes`, `loading`, `decoding`, `className`, `priority` (eager load + high fetch priority + React 19 preload hint). `width`+`height` (or `aspectRatio`) are **required by the type system** unless `layout="fullWidth"` — this is a compile-time CLS guard, don't work around it with `as any`.
 
-**Props (Picture):** Wraps `<Image>` with `<source>` children for art-directed responsive images.
+**Props (Picture):** `src` (vite-imagetools `?as=picture` import, or a plain string), `alt`, `width`, `height`, `className`, `loading`, `decoding`, `style`, `priority`, `placeholder`, plus any other native `<img>` attribute via passthrough. When `src` is a string, `width`+`height` are required (same CLS guard); when `src` is the vite-imagetools object, they're inferred from the import.
+
+**Blur-up placeholder for local images:** `background="auto"` (Image) only works for CDN-recognized URLs. For local images, build a tiny inlined placeholder with vite-imagetools and pass it directly — the raw data-URI import is auto-wrapped in `url(...)`:
+
+```tsx
+import heroUrl from '@/assets/hero.jpg?w=1200&format=webp'
+import heroBlur from '@/assets/hero.jpg?w=24&blur=3&format=webp&inline'
+
+<Image src={heroUrl} width={1200} height={600} alt="Hero" background={heroBlur} />
+<Picture src={heroImg} width={1200} height={600} alt="Hero banner" placeholder={heroBlur} />
+```
+
+See `.crax/image/usage.md` "Blur placeholder for local images" for the full directive breakdown.
 
 ## SEO (Head Component)
 
@@ -454,8 +470,8 @@ export default {
 | `siteUrl` | `https://example.com` | Base URL for SEO canonical URLs |
 | `pagesDir` | `src/pages` | Directory for page files |
 | `pageExtensions` | `['tsx']` | File extensions that become routes |
-| `images.deviceSizes` | `[320, 640, 960, 1280]` | Responsive breakpoints |
-| `images.formats` | `['webp', 'avif']` | Output image formats |
+| `images.deviceSizes` | `[320, 640, 960, 1280]` | Declared, not yet wired anywhere — reserved for a future pass |
+| `images.formats` | `['webp', 'avif']` | Only `formats[0]` is wired: `vite.config.ts` sets it as the default `format` directive for directive-less local image imports. Request multiple formats explicitly per-import with `?format=webp;avif&as=picture` |
 
 ## App Structure
 

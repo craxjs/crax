@@ -10,7 +10,7 @@ import {
   type ReactNode,
   type ReactElement,
 } from 'react'
-import { routeImportMap } from '../utils/enhance-router'
+import { prefetchRoute, getPathFromTo } from './prefetch'
 import useForesight from '../hooks/useForesight'
 
 type PrefetchStrategy = 'smart' | 'foresight' | 'none'
@@ -25,30 +25,38 @@ export type CraxLinkProps = Omit<LinkProps, 'prefetch'> & {
   name?: string
 }
 
+/** Disables viewTransition when the OS prefers reduced motion; guards environments without matchMedia (SSR, old browsers) */
+function resolveViewTransition(viewTransition?: boolean): boolean | undefined {
+  if (!viewTransition) return viewTransition
+  if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') return viewTransition
+  const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+  return prefersReducedMotion ? false : viewTransition
+}
+
 function SmartLink({
   to,
   children,
   className,
+  onPointerEnter,
+  onFocus,
+  onPointerDown,
   ...rest
 }: Omit<CraxLinkProps, 'prefetch' | 'hitSlop' | 'unregisterOnCallback' | 'name'>): ReactElement {
   const ref = useRef<HTMLAnchorElement>(null)
-  const didPrefetch = useRef(false)
+  const path = getPathFromTo(to)
 
-  const prefetchRoute = useCallback(async () => {
-    if (didPrefetch.current) return
-    didPrefetch.current = true
-    const path = typeof to === 'string' ? to : (to as { pathname?: string })?.pathname ?? ''
-    const importer = routeImportMap.get(path)
-    if (importer) await importer()
-  }, [to])
+  const triggerPrefetch = useCallback(() => {
+    prefetchRoute({ path })
+  }, [path])
 
+  // Viewport-based prefetch stays as the baseline signal — hover/focus/pointerdown below cover intent before the link ever scrolls into view
   useEffect(() => {
     const node = ref.current
     if (!node) return
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
-          prefetchRoute()
+          triggerPrefetch()
           observer.disconnect()
         }
       },
@@ -56,10 +64,27 @@ function SmartLink({
     )
     observer.observe(node)
     return () => observer.disconnect()
-  }, [prefetchRoute])
+  }, [triggerPrefetch])
 
   return (
-    <RouterLink to={to} ref={ref} className={className} {...rest}>
+    <RouterLink
+      to={to}
+      ref={ref}
+      className={className}
+      onPointerEnter={(event) => {
+        triggerPrefetch()
+        onPointerEnter?.(event)
+      }}
+      onFocus={(event) => {
+        triggerPrefetch()
+        onFocus?.(event)
+      }}
+      onPointerDown={(event) => {
+        triggerPrefetch()
+        onPointerDown?.(event)
+      }}
+      {...rest}
+    >
       {children}
     </RouterLink>
   )
@@ -72,26 +97,34 @@ function ForesightLink({
   hitSlop = 0,
   unregisterOnCallback = true,
   name = '',
+  onPointerDown,
   ...rest
 }: Omit<CraxLinkProps, 'prefetch'>): ReactElement {
+  const path = getPathFromTo(to)
+
   const foresightOptions = useMemo(
     () => ({
-      callback: async () => {
-        const path = typeof to === 'string' ? to : (to as { pathname?: string })?.pathname ?? ''
-        const importer = routeImportMap.get(path)
-        if (importer) await importer()
-      },
+      callback: () => prefetchRoute({ path }),
       hitSlop,
       name,
       unregisterOnCallback,
     }),
-    [to, hitSlop, name, unregisterOnCallback]
+    [path, hitSlop, name, unregisterOnCallback]
   )
 
   const { elementRef } = useForesight<HTMLAnchorElement>(foresightOptions)
 
   return (
-    <RouterLink to={to} ref={elementRef} className={className} {...rest}>
+    <RouterLink
+      to={to}
+      ref={elementRef}
+      className={className}
+      onPointerDown={(event) => {
+        prefetchRoute({ path })
+        onPointerDown?.(event)
+      }}
+      {...rest}
+    >
       {children}
     </RouterLink>
   )
@@ -102,18 +135,22 @@ export function Link({
   hitSlop,
   unregisterOnCallback,
   name,
+  viewTransition,
   ...props
 }: CraxLinkProps): ReactElement {
-  if (prefetch === 'none') return <RouterLink {...props} />
+  const safeViewTransition = resolveViewTransition(viewTransition)
+
+  if (prefetch === 'none') return <RouterLink viewTransition={safeViewTransition} {...props} />
   if (prefetch === 'foresight') {
     return (
       <ForesightLink
         hitSlop={hitSlop}
         unregisterOnCallback={unregisterOnCallback}
         name={name}
+        viewTransition={safeViewTransition}
         {...props}
       />
     )
   }
-  return <SmartLink {...props} />
+  return <SmartLink viewTransition={safeViewTransition} {...props} />
 }

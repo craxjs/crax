@@ -5,6 +5,41 @@ import { routeImportMap } from "../utils/enhance-router"
 import { createOgAwareLazy } from "./og-meta"
 import { createPwaAwareLazy } from "./pwa-meta"
 
+/**
+ * Default Suspense fallback used when a route (or the project) has no
+ * `src/pages/loading.tsx`. Kept intentionally tiny — no external deps,
+ * no layout assumptions — and respects prefers-reduced-motion via a
+ * scoped `<style>` so the pulse animation drops out for users who opt out.
+ */
+function DefaultLoadingFallback() {
+  return (
+    <div
+      role="status"
+      aria-label="Loading"
+      style={{ display: "flex", alignItems: "center", justifyContent: "center", padding: "2rem" }}
+    >
+      <span className="crax-loading-pulse" />
+      <style>{`
+        .crax-loading-pulse {
+          width: 1.5rem;
+          height: 1.5rem;
+          border-radius: 9999px;
+          background: currentColor;
+          opacity: 0.35;
+          animation: crax-loading-pulse 1s ease-in-out infinite;
+        }
+        @keyframes crax-loading-pulse {
+          0%, 100% { opacity: 0.25; transform: scale(0.85); }
+          50% { opacity: 0.6; transform: scale(1); }
+        }
+        @media (prefers-reduced-motion: reduce) {
+          .crax-loading-pulse { animation: none; }
+        }
+      `}</style>
+    </div>
+  )
+}
+
 const PAGE_GLOB = import.meta.glob("/src/pages/**/*.{tsx,mdx}")
 
 const PAGES_DIR = "/src/pages/"
@@ -73,6 +108,12 @@ const SPECIALS = Object.fromEntries(
 )
 
 export function CraxRouter() {
+  const NotFound = SPECIALS["not-found"] ?? Fragment
+  const ErrorFallback = SPECIALS["error"] ?? Fragment
+  const Loading = SPECIALS["loading"]
+  // A user-provided src/pages/loading.tsx always wins over the built-in fallback
+  const loadingFallback = Loading ? <Loading /> : <DefaultLoadingFallback />
+
   const routeElements = useMemo(() => {
     const grouped = new Map<string | null, Array<{ path: string; component: ComponentType }>>()
 
@@ -87,11 +128,20 @@ export function CraxRouter() {
 
     const elements: ReactNode[] = []
 
+    // Each leaf page gets its own Suspense boundary so a cache-miss navigation
+    // only ever suspends that page's slot — never the whole app, never a
+    // parent layout (which lives outside this boundary, see below).
     for (const [dir, pages] of grouped) {
       if (dir === null) {
         for (const page of pages) {
           const Comp = page.component
-          elements.push(<Route key={page.path} path={page.path} element={<Comp />} />)
+          elements.push(
+            <Route
+              key={page.path}
+              path={page.path}
+              element={<Suspense fallback={loadingFallback}><Comp /></Suspense>}
+            />
+          )
         }
       } else {
         const Layout = LAYOUTS[dir]
@@ -99,14 +149,28 @@ export function CraxRouter() {
           const Comp = page.component
           const isIndex = page.path === `/${dir}`
           const childPath = isIndex ? undefined : page.path.replace(`/${dir}/`, "")
+          const element = <Suspense fallback={loadingFallback}><Comp /></Suspense>
           return isIndex ? (
-            <Route key={page.path} index element={<Comp />} />
+            <Route key={page.path} index element={element} />
           ) : (
-            <Route key={page.path} path={childPath} element={<Comp />} />
+            <Route key={page.path} path={childPath} element={element} />
           )
         })
         elements.push(
-          <Route key={dir} path={`/${dir}`} element={<Layout><Outlet /></Layout>}>
+          // Suspense here only guards the Layout's own lazy load (first mount).
+          // Child pages suspend inside their own boundary above, rendered via
+          // <Outlet />, so switching pages never unmounts the layout.
+          <Route
+            key={dir}
+            path={`/${dir}`}
+            element={
+              <Suspense fallback={loadingFallback}>
+                <Layout>
+                  <Outlet />
+                </Layout>
+              </Suspense>
+            }
+          >
             {children}
           </Route>
         )
@@ -114,19 +178,17 @@ export function CraxRouter() {
     }
 
     return elements
-  }, [])
-
-  const NotFound = SPECIALS["not-found"] ?? Fragment
-  const ErrorFallback = SPECIALS["error"] ?? Fragment
-  const Loading = SPECIALS["loading"]
+  }, [loadingFallback])
 
   return (
     <ErrorBoundary fallback={ErrorFallback}>
-      <Suspense fallback={Loading ? <Loading /> : <div />}>
+      {/* Last-resort boundary for the initial load — per-route Suspense above
+          normally catches suspensions first since it's the nearer boundary. */}
+      <Suspense fallback={loadingFallback}>
         <BrowserRouter>
           <Routes>
             {routeElements}
-            <Route path="*" element={<NotFound />} />
+            <Route path="*" element={<Suspense fallback={loadingFallback}><NotFound /></Suspense>} />
           </Routes>
         </BrowserRouter>
       </Suspense>
