@@ -8,6 +8,13 @@ user-invocable: false
 
 A lightweight React framework built on Vite. Frontend-only, no SSR. Framework source ships into your project under `.crax/` — read it, modify it, delete what you don't use.
 
+## Principles
+
+1. **Don't remove modules just because you can.** Only remove `.crax/` modules if they cause build errors or you genuinely don't use them. The framework is minimal — keeping modules means upgrades stay simple.
+2. **Always use import aliases.** The tsconfig has `@/*` → `src/*` configured. Use `@/components/Foo` not relative `../../components/Foo`.
+3. **Configure via `crax.config.mjs`.** Don't hack the framework source for config changes. Image sizes, OG settings, PWA options — all go in `crax.config.mjs`.
+4. **Centralize stores.** Use `src/stores/index.ts` (single file) for small projects or `src/stores/cart.ts`, `src/stores/auth.ts` etc. for larger ones. Import and use in components, don't scatter `createStore` calls across page files.
+
 ## Project Structure
 
 ```
@@ -36,6 +43,11 @@ my-app/
 │   │   ├── not-found.tsx       # 404 page
 │   │   ├── error.tsx           # Error boundary
 │   │   └── loading.tsx         # Loading state
+│   ├── stores/         # Centralized state (see State Management)
+│   │   ├── index.ts    # Re-exports all stores (small projects)
+│   │   ├── auth.ts     # Auth store
+│   │   └── cart.ts     # Cart store
+│   ├── components/     # Shared UI components
 │   ├── App.tsx         # Root component (QueryClient + CraxRouter)
 │   ├── main.tsx        # Entry point
 │   └── index.css       # Global styles (Tailwind)
@@ -45,14 +57,20 @@ my-app/
 
 ## Imports
 
-All framework exports come from `.crax/index.ts`:
+Always use the `@/` import alias (configured in tsconfig). Never use relative paths like `../../`.
 
 ```tsx
+// Framework modules — use alias
 import { Link, useRouter, Outlet } from '@crax/router'
 import { createStore, useStore, useStoreEffect } from '@crax/store'
 import { Image, Picture } from '@crax/image'
 import { Head } from '@crax/seo'
 import { useViewTransition } from '@crax/hooks/use-view-transition'
+
+// Your code — use @/ alias
+import { authStore } from '@/stores/auth'
+import { Button } from '@/components/Button'
+import { formatDate } from '@/utils/format'
 ```
 
 ## Routing
@@ -161,6 +179,63 @@ function Navigation() {
 ## State Management
 
 Global state built on `useSyncExternalStore`. No providers, no boilerplate, no re-render pitfalls.
+
+### Store Organization
+
+**Small projects** — one file `src/stores/index.ts`:
+
+```tsx
+// src/stores/index.ts
+import { createStore } from '@crax/store'
+
+export const themeStore = createStore<'light' | 'dark'>('light')
+export const authStore = createStore({ user: null, isLoggedIn: false })
+export const cartStore = createStore<{ id: number; qty: number }[]>([])
+```
+
+**Larger projects** — separate files `src/stores/`:
+
+```
+src/stores/
+├── index.ts      # Re-exports
+├── auth.ts       # Auth-related state
+├── cart.ts       # Cart state
+└── theme.ts      # UI preferences
+```
+
+```tsx
+// src/stores/auth.ts
+import { createStore } from '@crax/store'
+
+export const authStore = createStore({
+  user: null as { id: string; name: string } | null,
+  isLoggedIn: false,
+})
+
+export function login(name: string) {
+  authStore.value = { user: { id: '1', name }, isLoggedIn: true }
+}
+
+export function logout() {
+  authStore.value = { user: null, isLoggedIn: false }
+}
+```
+
+Then import and use in components:
+
+```tsx
+import { useStore } from '@crax/store'
+import { authStore, login } from '@/stores/auth'
+
+function LoginButton() {
+  const [auth, setAuth] = useStore(authStore)
+  return auth.isLoggedIn ? (
+    <button onClick={() => login('User')}>Login</button>
+  ) : (
+    <span>Welcome, {auth.user?.name}</span>
+  )
+}
+```
 
 ### createStore
 
