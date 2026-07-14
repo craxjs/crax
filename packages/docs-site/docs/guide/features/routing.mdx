@@ -38,6 +38,8 @@ src/pages/
   └── page.tsx            # Renders at /
 ```
 
+Every page and layout renders inside its own `Suspense` boundary, so navigating to a route whose chunk hasn't loaded yet only suspends that route's slot — a layout (sidebar, nav, etc.) stays mounted while its `<Outlet />` content shows the loading fallback. Drop a `src/pages/loading.tsx` to use your own fallback; without one, Crax renders a small built-in pulse indicator that respects `prefers-reduced-motion`.
+
 The layout component must render `<Outlet />` to show the active child route:
 
 ```tsx
@@ -65,15 +67,18 @@ Use the `Link` component from `@crax/router` for client-side navigation with pre
 ```tsx
 import { Link } from '@crax/router'
 
-// Smart prefetch (default), triggers when link enters viewport
+// Smart (default): prefetches on hover, focus, or pointerdown, plus a
+// viewport-observation baseline for links that are never hovered
 <Link to="/dashboard">Dashboard</Link>
 
-// Foresight, predicts user intent from cursor movement
+// Foresight, predicts user intent from cursor movement (hover/pointerdown also prefetch directly)
 <Link to="/pricing" prefetch="foresight">Pricing</Link>
 
 // None, plain client-side navigation
 <Link to="/terms" prefetch="none">Terms</Link>
 ```
+
+All prefetch triggers share one dedupe set keyed by route path, so a link that's hovered, focused, and scrolled into view still only fetches its chunk once.
 
 ## useRouter
 
@@ -90,6 +95,20 @@ function MyComponent() {
       Go to Dashboard
     </button>
   )
+}
+```
+
+## Programmatic prefetching
+
+`router.push()` doesn't prefetch on its own. Import `prefetch` from `@crax/router` to warm a route's chunk ahead of a programmatic navigation — it dedupes against the same set the `<Link>` triggers use:
+
+```tsx
+import { useRouter, prefetch } from '@crax/router'
+
+async function onSubmit() {
+  prefetch({ path: '/dashboard' })
+  await saveForm()
+  router.push('/dashboard')
 }
 ```
 

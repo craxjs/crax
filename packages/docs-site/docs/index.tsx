@@ -36,7 +36,7 @@ function ThemeToggle() {
 
 const LINK_CODE = `import { Link } from '@crax/router'
 
-// Smart (default): prefetch when link enters viewport
+// Smart (default): prefetch on hover, focus, pointerdown, or viewport entry
 <Link to="/dashboard">Dashboard</Link>
 
 // Foresight: hover + cursor trajectory prediction
@@ -67,7 +67,7 @@ const FEATURES: Feature[] = [
   {
     Icon: FiCrosshair,
     title: 'Predictive Navigation',
-    body: 'Links prefetch when they enter the viewport. Foresight mode predicts user intent from cursor movement. Or disable prefetching entirely.',
+    body: 'Links prefetch on hover, focus, or when they enter the viewport. Foresight mode predicts user intent from cursor movement. Or disable prefetching entirely.',
     span: 'tall',
   },
   {

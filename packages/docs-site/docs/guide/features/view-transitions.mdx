@@ -36,6 +36,8 @@ import { Link } from '@crax/router'
 </Link>
 ```
 
+`viewTransition` is automatically disabled when the user's OS has `prefers-reduced-motion: reduce` set, regardless of the prop value — no extra check needed on your end.
+
 ## Checking support
 
 ```tsx

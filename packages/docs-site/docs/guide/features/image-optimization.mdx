@@ -33,6 +33,35 @@ import logoUrl from '@/assets/logo.png?w=200&format=webp'
 - `width`, `height`: Dimensions for fixed/constrained layout.
 - `layout`: `"constrained"` (default), `"fixed"`, or `"fullWidth"`.
 - `background`: Blur-up placeholder. Defaults to `"auto"`.
+- `priority`: LCP hint — eager loading + high fetch priority + (React 19) a preload link. See [Priority (LCP) images](#priority-lcp-images) below.
+
+### Width/height are required
+
+`width`+`height` (or `aspectRatio`) are enforced at **compile time** on every layout except `"fullWidth"` — this is a CLS (layout shift) guard, not a suggestion:
+
+```tsx
+<Image src="/hero.jpg" alt="Hero" />
+// ❌ Type error: width/height (or aspectRatio) missing
+
+<Image src="/hero.jpg" alt="Hero" width={1200} height={600} />
+// ✅ compiles — fixed intrinsic size, "constrained" layout (default)
+
+<Image src="/hero.jpg" alt="Hero" layout="fullWidth" />
+// ✅ compiles — the escape hatch. Stretches to fill the container; height is
+// optional here since the container determines the rendered size.
+```
+
+`layout="fullWidth"` doesn't take `width` (it's set by the container, so the type disallows it). `<Picture>`'s string-`src` branch has the same width/height requirement — its vite-imagetools object-`src` branch is exempt because real dimensions are read from the import at build time.
+
+### Local `/public` images
+
+Plain string URLs to `/public` assets (or any URL outside a recognized CDN) are **not** processed by unpic: no generated `srcset`, no format conversion, and no automatic `loading="lazy"`/`decoding="async"` — those props pass straight through unchanged, so set them yourself if you want them. For real optimization of local files, import them through vite-imagetools instead:
+
+```tsx
+import heroUrl from '@/assets/hero.jpg?w=1200&format=webp'
+
+<Image src={heroUrl} width={1200} height={600} alt="Hero" />
+```
 
 ## `<Picture />`
 
@@ -49,19 +78,49 @@ import heroImg from '@/assets/hero.jpg?w=1200&format=webp;avif&as=picture'
 />
 ```
 
-Renders a `<picture>` element with `<source>` tags for each format, with fallback `<img>`.
+Renders a `<picture>` element with `<source>` tags for each format, with fallback `<img>`. A plain string `src` also renders (falls back to a plain `<img>`), but then `width`/`height` are **required** — a string has no known intrinsic size for Crax to infer, while the vite-imagetools object `src` infers them from `src.img.w/h`.
+
+## Priority (LCP) images
+
+```tsx
+import heroUrl from '@/assets/hero.jpg?w=1200&format=webp'
+import heroImg from '@/assets/hero.jpg?w=1200&format=webp;avif&as=picture'
+
+<Image src={heroUrl} width={1200} height={600} alt="Hero" priority />
+<Picture src={heroImg} width={1200} height={600} alt="Hero banner" priority />
+```
+
+`priority` sets `loading="eager"` + `fetchPriority="high"` (default is lazy), and — on React 19 — calls `preload()` from `react-dom` (string `src` only) so the browser starts fetching the image before React commits. Reserve it for the single above-the-fold image most likely to be the page's Largest Contentful Paint.
+
+## Blur-up placeholder for local images
+
+`background="auto"` only works for CDN-recognized URLs — unpic has no way to generate a placeholder for a local file. For local images, build a tiny inlined blur placeholder at compile time with vite-imagetools and pass it straight to `background` (`Image`) or `placeholder` (`Picture`):
+
+```tsx
+import heroUrl from '@/assets/hero.jpg?w=1200&format=webp'
+import heroImg from '@/assets/hero.jpg?w=1200&format=webp;avif&as=picture'
+import heroBlur from '@/assets/hero.jpg?w=24&blur=3&format=webp&inline'
+
+<Image src={heroUrl} width={1200} height={600} alt="Hero" background={heroBlur} />
+<Picture src={heroImg} width={1200} height={600} alt="Hero banner" placeholder={heroBlur} />
+```
+
+- `w=24` — tiny output, cheap to inline
+- `blur=3` — Gaussian blur sigma, applied at build time (not a runtime CSS `filter: blur()`)
+- `format=webp` — small, broadly supported
+- `inline` — base64-encodes the transformed image into the module instead of emitting a file, so the import resolves to a `data:image/webp;base64,...` string with no extra network request
+
+The import resolves to a bare data-URI string (no `url(...)` wrapper needed) — `Image`'s `background` and `Picture`'s `placeholder` auto-wrap it. Plain CSS values (`"auto"`, colors, gradients) still pass through unchanged. See `.crax/image/usage.md` for the full directive breakdown.
 
 ## Lazy Loading
 
-Both components default to `loading="lazy"` and `decoding="async"`. Override for above-the-fold images:
+CDN and vite-imagetools images default to `loading="lazy"` and `decoding="async"` via unpic. Plain local `/public` string sources do not get these defaults automatically (see [Local `/public` images](#local-public-images) above) — set them explicitly if needed. Override for above-the-fold images:
 
 ```tsx
 <Image src={heroUrl} alt="Hero" loading="eager" />
 ```
 
 ## Configuration
-
-Tune device sizes and formats in `crax.config.mjs`:
 
 ```js
 export default {
@@ -76,3 +135,7 @@ export default {
   },
 }
 ```
+
+Only `images.formats[0]` is actually wired: `vite.config.ts` passes it to `imagetools({ defaultDirectives })`, so a directive-less local import (`import x from './photo.jpg'`, no `?w=…` query) automatically resolves to that format. Request additional formats explicitly per-import with `?format=webp;avif&as=picture`.
+
+`images.deviceSizes` and `images.defaultProps` are declared in the config type but **not wired into anything yet** — reserved for a future responsive-breakpoints/defaults pass. Don't rely on them.

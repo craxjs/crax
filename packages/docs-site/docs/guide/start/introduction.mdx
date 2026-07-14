@@ -57,7 +57,7 @@ Crax is built on Vite. There is no server runtime, no RSC compilation, and no ca
 - File-based routing with layouts, dynamic segments, MDX pages, and special files (`not-found`, `error`, `loading`)
 - `Image` and `Picture` components for CDN-aware image optimization
 - `createStore` for global state with subscriptions, history, and locking
-- `Link` with three prefetch strategies: `smart` (IntersectionObserver), `foresight` (cursor prediction), and `none`
+- `Link` with three prefetch strategies: `smart` (hover, focus, pointerdown, plus a viewport-observation baseline), `foresight` (cursor prediction), and `none`
 - React Query pre-configured with sensible defaults and DevTools
 - `useViewTransition` hook for native view transitions with a fallback
 - Tailwind CSS v4 with no config file required
