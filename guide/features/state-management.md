@@ -2,6 +2,8 @@
 
 Crax includes a simple global state management solution built on top of React's `useSyncExternalStore`. No external dependencies, no boilerplate.
 
+Store state lives in memory only: it persists across client-side navigation (route changes don't remount the store) but resets on a full page reload. Persistence adapters (e.g. localStorage sync) are planned but not built yet — reach for `useStoreEffect` in the meantime if you need to hydrate/persist manually.
+
 ## Store Organization
 
 **Small projects** — single file `src/stores/index.ts`:

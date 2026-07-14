@@ -370,6 +370,8 @@ url: /crax/guide/features/state-management.md
 
 Crax includes a simple global state management solution built on top of React's `useSyncExternalStore`. No external dependencies, no boilerplate.
 
+Store state lives in memory only: it persists across client-side navigation (route changes don't remount the store) but resets on a full page reload. Persistence adapters (e.g. localStorage sync) are planned but not built yet — reach for `useStoreEffect` in the meantime if you need to hydrate/persist manually.
+
 ## Store Organization
 
 **Small projects** — single file `src/stores/index.ts`:
@@ -607,6 +609,38 @@ export default function UserPage() {
 If the loader throws, the nearest `error.tsx` handles it the same way it handles render errors.
 
 React Query and loaders serve different purposes. Use React Query for data shared across components, cached between navigations, or polled. Use loaders for data required before a specific route renders.
+
+### Paginated routes
+
+A loader reads `request.url` (a standard `Request`), so a page can page itself off the query string instead of a dynamic segment:
+
+```tsx
+// src/pages/users/index.tsx
+import { useLoaderData, Link } from '@crax/router'
+
+export async function loader({ request }: { request: Request }) {
+  const page = new URL(request.url).searchParams.get('page') ?? '1'
+  const users = await fetch(`/api/users?page=${page}`).then(r => r.json())
+  return { users, page: Number(page) }
+}
+
+export default function UsersPage() {
+  const { users, page } = useLoaderData() as { users: { id: string; name: string }[]; page: number }
+
+  return (
+    <>
+      <ul>
+        {users.map(user => (
+          <li key={user.id}>{user.name}</li>
+        ))}
+      </ul>
+      <Link to={`/users?page=${page + 1}`}>Next page</Link>
+    </>
+  )
+}
+```
+
+Navigating to `?page=2` re-runs the loader (the query string is part of the location) while the current page stays mounted until the new data resolves.
 
 
 
