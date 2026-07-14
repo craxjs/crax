@@ -1,0 +1,67 @@
+:root {
+  /* Sky blue brand colors for Crax (extracted from public/logo.svg → #61B5C2) */
+  --rp-c-brand: oklch(72% 0.10 208.5);
+  --rp-c-brand-light: oklch(80% 0.10 208.5);
+  --rp-c-brand-lighter: oklch(89% 0.06 208.5);
+  --rp-c-brand-dark: oklch(62% 0.10 208.5);
+  --rp-c-brand-darker: oklch(52% 0.10 208.5);
+  --rp-c-brand-tint: oklch(72% 0.10 208.5 / 0.16);
+}
+
+/* Fix code snippet overflow and right-side spacing */
+.rp-codeblock__content :where(code) {
+  padding: 1rem 1.5rem !important;
+  display: block;
+  width: max-content;
+  min-width: 100%;
+}
+
+.rp-codeblock__content--line-numbers code {
+  padding-left: 0.5rem !important;
+}
+
+.rp-codeblock__content :where(pre) {
+  margin: 0 !important;
+}
+
+.rp-codeblock__content {
+  background-color: #0d0d0d !important;
+}
+
+.rp-codeblock__content pre {
+  background-color: #0d0d0d !important;
+}
+
+.rp-codeblock__content code {
+  background-color: #0d0d0d !important;
+}
+
+.rp-codeblock {
+  background-color: #0d0d0d !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+.rp-codeblock__header {
+  background-color: #080808 !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+.rp-codeblock__header span {
+  color: rgba(255, 255, 255, 0.6) !important;
+}
+
+.rp-codeblock__header button {
+  color: rgba(255, 255, 255, 0.6) !important;
+}
+
+/* Navbar logo: consistent sizing and visible edges in both light and dark modes */
+.rp-nav__title__logo-image {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  box-shadow: 0 0 0 1px oklch(0% 0 0 / 0.08), 0 2px 6px oklch(0% 0 0 / 0.08);
+}
+
+html.rp-dark .rp-nav__title__logo-image {
+  box-shadow: 0 0 0 1px oklch(100% 0 0 / 0.1), 0 2px 6px oklch(0% 0 0 / 0.2);
+}

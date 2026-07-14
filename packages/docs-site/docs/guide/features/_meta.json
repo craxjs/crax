@@ -1,0 +1,13 @@
+[
+  { "type": "file", "name": "index", "label": "Overview" },
+  { "type": "file", "name": "routing", "label": "Routing" },
+  { "type": "file", "name": "state-management", "label": "State Management" },
+  { "type": "file", "name": "data-fetching", "label": "Data Fetching" },
+  { "type": "file", "name": "image-optimization", "label": "Image Optimization" },
+  { "type": "file", "name": "seo", "label": "SEO" },
+  { "type": "file", "name": "view-transitions", "label": "View Transitions" },
+  { "type": "file", "name": "configuration", "label": "Configuration" },
+  { "type": "file", "name": "cli-commands", "label": "CLI Commands" },
+  { "type": "file", "name": "pwa", "label": "PWA" },
+  { "type": "file", "name": "deploy", "label": "Deploy" }
+]

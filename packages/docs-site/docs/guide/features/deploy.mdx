@@ -1,0 +1,80 @@
+---
+title: Deploy
+---
+
+# Deploy
+
+Crax builds to a static `dist/` directory. No server runtime required. Deploy to any static host, CDN, or container.
+
+## Static Hosting
+
+The simplest option. Upload `dist/` to any static host.
+
+```bash
+pnpm build
+```
+
+Output works on Vercel, Netlify, Cloudflare Pages, GitHub Pages, S3, or any file server. No framework-specific adapter needed.
+
+## Docker + Caddy
+
+Crax projects include a `Dockerfile` and `Caddyfile` by default.
+
+**Dockerfile:**
+
+```dockerfile
+FROM node:20-alpine AS builder
+WORKDIR /app
+
+COPY package*.json ./
+RUN npm install
+
+COPY . .
+RUN npm run build
+
+FROM caddy:alpine AS runner
+COPY --from=builder /app/dist /srv
+COPY Caddyfile /etc/caddy/Caddyfile
+EXPOSE 80
+CMD ["caddy", "run", "--config", "/etc/caddy/Caddyfile", "--adapter", "caddyfile"]
+```
+
+**Caddyfile:**
+
+```
+:80 {
+	root * /srv
+	encode gzip
+	file_server
+	try_files {path} /index.html
+}
+```
+
+Build and run:
+
+```bash
+docker build -t my-app .
+docker run -p 8080:80 my-app
+```
+
+The container serves the production build via Caddy with gzip compression and SPA fallback routing.
+
+## Caddy Without Docker
+
+If Caddy is installed locally:
+
+```bash
+pnpm build
+caddy run --config Caddyfile
+```
+
+The `try_files` directive handles client-side routing by falling back to `index.html` for any path that does not match a static file.
+
+## Other Options
+
+Any static file server works. Common choices:
+
+- **Nginx**: Use `try_files $uri $uri/ /index.html;` for SPA fallback
+- **Apache**: Use `mod_rewrite` with `FallbackResource /index.html`
+- **Cloudflare Pages**: Auto-detected, zero config
+- **Vercel / Netlify**: Auto-detected, zero config

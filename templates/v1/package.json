@@ -1,0 +1,63 @@
+{
+  "name": "crax-app",
+  "version": "0.0.1",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint .",
+    "test": "vitest run",
+    "gen:og": "npx @craxjs/crax og",
+    "gen:pwa": "npx @craxjs/crax pwa"
+  },
+  "dependencies": {
+    "react": "^19",
+    "react-dom": "^19",
+    "react-router-dom": "^7",
+    "@tanstack/react-query": "^5",
+    "@tanstack/react-query-devtools": "^5",
+    "@unpic/react": "^1",
+    "class-variance-authority": "^0.7",
+    "clsx": "^2",
+    "tailwind-merge": "^3",
+    "motion": "^12",
+    "lucide-react": "^0.577",
+    "sonner": "^2",
+    "@unhead/react": "^2",
+    "slang-ts": "0.0.7",
+    "zod": "^4",
+    "@regist/regist": "0.0.3",
+    "fast-deep-equal": "^3",
+    "just-diff": "^6"
+  },
+  "optionalDependencies": {
+    "js.foresight": "^4"
+  },
+  "devDependencies": {
+    "@mdx-js/rollup": "^3",
+    "@tailwindcss/vite": "^4",
+    "@vitejs/plugin-react": "^5",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "tailwindcss": "^4",
+    "typescript": "~5.9",
+    "vite": "^7",
+    "vite-imagetools": "^10",
+    "vitest": "^3",
+    "satori": "^0.18",
+    "@resvg/resvg-js": "^2",
+    "@fontsource/inter": "^5",
+    "sharp": "^0.33",
+    "tsx": "^4",
+    "prettier": "^3",
+    "prettier-plugin-tailwindcss": "^0.7",
+    "@eslint/js": "^9",
+    "eslint": "^9",
+    "eslint-plugin-react-hooks": "^7",
+    "eslint-plugin-react-refresh": "^0.5",
+    "globals": "^16",
+    "typescript-eslint": "^8"
+  }
+}

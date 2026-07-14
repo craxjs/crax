@@ -1,0 +1,102 @@
+---
+title: State Management
+---
+
+# State Management
+
+Crax includes a simple global state management solution built on top of React's `useSyncExternalStore`. No external dependencies, no boilerplate.
+
+## Creating a Store
+
+```typescript
+// src/stores/theme.ts
+import { createStore } from '@crax/store'
+
+export const themeStore = createStore<'light' | 'dark'>('light')
+```
+
+## Using a Store
+
+`useStore` returns a `[state, setState]` tuple, similar to `useState`:
+
+```tsx
+import { useStore } from '@crax/store'
+import { themeStore } from '@/stores/theme'
+
+export default function ThemeToggle() {
+  const [theme, setTheme] = useStore(themeStore)
+
+  return (
+    <button onClick={() => setTheme(t => t === 'light' ? 'dark' : 'light')}>
+      {theme}
+    </button>
+  )
+}
+```
+
+## Side Effects
+
+`useStoreEffect` runs a side effect when store values change:
+
+```tsx
+import { useStoreEffect } from '@crax/store'
+import { themeStore } from '@/stores/theme'
+
+export default function ThemePersister() {
+  useStoreEffect(() => {
+    localStorage.setItem('theme', themeStore.value)
+    document.body.className = themeStore.value
+  }, [themeStore])
+
+  return null
+}
+```
+
+## Store API
+
+### Direct access
+
+Stores can be read and written outside of React components:
+
+```typescript
+// Read
+console.log(themeStore.value) // 'light'
+
+// Write
+themeStore.value = 'dark'
+
+// Functional update
+themeStore.update(t => t === 'light' ? 'dark' : 'light')
+```
+
+### History
+
+```typescript
+themeStore.value = 'dark'
+themeStore.value = 'light'
+console.log(themeStore.history) // ['light', 'dark']
+```
+
+### Locking
+
+Prevent modifications during critical operations:
+
+```typescript
+const lockId = themeStore.lock()
+try {
+  // safe operations
+} finally {
+  themeStore.unlock(lockId)
+}
+```
+
+## Subscribing
+
+```typescript
+const unsubscribe = themeStore.subscribe(() => {
+  console.log('theme changed:', themeStore.value)
+})
+
+// Later
+unsubscribe()
+```

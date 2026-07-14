@@ -1,0 +1,5 @@
+[
+  { "type": "dir-section-header", "name": "start", "label": "Getting Started" },
+  { "type": "dir-section-header", "name": "features", "label": "Features" },
+  { "type": "dir-section-header", "name": "examples", "label": "Examples" }
+]

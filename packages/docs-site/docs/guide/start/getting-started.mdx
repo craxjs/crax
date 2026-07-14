@@ -1,0 +1,70 @@
+---
+title: Getting Started
+---
+
+# Getting Started
+
+**CRAX** (Create React App Xtended) is a lightweight React framework for dashboards, web apps, and internal tools. This guide takes you from zero to a running app in a couple of minutes.
+
+## Prerequisites
+
+- **Node.js** 18 or higher
+- **pnpm** (recommended) or npm/yarn
+
+## Create your app
+
+```bash
+npx @craxjs/crax create my-app
+```
+
+This scaffolds a new directory called `my-app` with the complete Crax starter project.
+
+## Start the dev server
+
+```bash
+cd my-app
+pnpm install
+pnpm dev
+```
+
+Your app is now running at `http://localhost:5173`.
+
+## Project structure
+
+```
+my-app/
+├── .crax/              # Framework source, yours to read and modify
+│   ├── router/         # File-based routing
+│   ├── store/          # State management
+│   ├── image/          # Image components
+│   └── hooks/          # useForesight and other hooks
+├── src/
+│   ├── pages/
+│   │   ├── page.tsx    # Home page -> /
+│   │   └── not-found.tsx
+│   ├── App.tsx
+│   ├── main.tsx
+│   └── index.css
+├── crax.config.mjs     # Your config
+└── vite.config.ts
+```
+
+## Add a new page
+
+Create `src/pages/about.tsx`:
+
+```tsx
+export default function AboutPage() {
+  return <h1>About</h1>
+}
+```
+
+Navigate to `/about` and it works. No config required.
+
+## Build for production
+
+```bash
+pnpm build
+```
+
+Output goes to `dist/`. Deploy to any static host (Vercel, Netlify, Cloudflare Pages, etc.) and it works. Open source and no vendor lock-in.

@@ -1,0 +1,78 @@
+---
+title: Image Optimization
+---
+
+# Image Optimization
+
+Crax provides two image components for different use cases.
+
+## `<Image />`
+
+CDN-aware responsive images via `@unpic/react`. Auto-detects image CDNs (Cloudinary, Imgix, etc.) and generates optimal `srcset` attributes.
+
+```tsx
+import { Image } from '@crax/image'
+
+// CDN image
+<Image
+  src="https://cdn.example.com/photo.jpg"
+  width={800}
+  height={600}
+  alt="Photo"
+/>
+
+// Local image with vite-imagetools
+import logoUrl from '@/assets/logo.png?w=200&format=webp'
+<Image src={logoUrl} width={200} height={50} alt="Logo" />
+```
+
+### Props
+
+- `src` (required): URL or import.
+- `alt` (required): Alt text.
+- `width`, `height`: Dimensions for fixed/constrained layout.
+- `layout`: `"constrained"` (default), `"fixed"`, or `"fullWidth"`.
+- `background`: Blur-up placeholder. Defaults to `"auto"`.
+
+## `<Picture />`
+
+For vite-imagetools `?as=picture` imports with multiple format sources:
+
+```tsx
+import heroImg from '@/assets/hero.jpg?w=1200&format=webp;avif&as=picture'
+
+<Picture
+  src={heroImg}
+  width={1200}
+  height={600}
+  alt="Hero banner"
+/>
+```
+
+Renders a `<picture>` element with `<source>` tags for each format, with fallback `<img>`.
+
+## Lazy Loading
+
+Both components default to `loading="lazy"` and `decoding="async"`. Override for above-the-fold images:
+
+```tsx
+<Image src={heroUrl} alt="Hero" loading="eager" />
+```
+
+## Configuration
+
+Tune device sizes and formats in `crax.config.mjs`:
+
+```js
+export default {
+  images: {
+    deviceSizes: [320, 640, 960, 1280],
+    formats: ['webp', 'avif'],
+    defaultProps: {
+      sizes: '(max-width: 640px) 100vw, 640px',
+      loading: 'lazy',
+      decoding: 'async',
+    },
+  },
+}
+```

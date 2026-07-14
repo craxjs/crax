@@ -1,0 +1,17 @@
+[
+  {
+    "text": "Guide",
+    "link": "/guide/start/introduction",
+    "activeMatch": "/guide/"
+  },
+  {
+    "text": "Features",
+    "link": "/guide/features/",
+    "activeMatch": "/guide/features/"
+  },
+  {
+    "text": "Examples",
+    "link": "/guide/examples/pokedex",
+    "activeMatch": "/guide/examples/"
+  }
+]

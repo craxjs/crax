@@ -1,0 +1,50 @@
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+node_modules
+dist
+dist-ssr
+*.local
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Env files
+.env
+.env.*
+!.env.example
+
+# AI agent / tooling files
+AGENTS.md
+context.md
+llms.md
+prompt.md
+task.md
+opencode.json
+.claude/
+
+# Build outputs
+doc_build/
+
+# Internal docs
+docs/internal/
+backups
+backup
+trash
+.trash
+.backup
+intent.md

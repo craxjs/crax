@@ -1,0 +1,109 @@
+---
+title: Data Fetching
+---
+
+# Data Fetching
+
+Crax pre-configures React Query in every new project. No setup required.
+
+## React Query
+
+A `QueryClient` is configured in `src/App.tsx` with sensible defaults:
+
+- `staleTime`: 60 seconds, cached data stays fresh for a minute before refetching
+- `retry`: 1, failed requests retry once before erroring
+
+React Query DevTools are included and open with the toggle in the bottom corner during development.
+
+```tsx
+// src/App.tsx, already set up for you
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
+
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: { staleTime: 1000 * 60, retry: 1 },
+  },
+})
+
+export function App() {
+  return (
+    <QueryClientProvider client={queryClient}>
+      <CraxRouter />
+      <ReactQueryDevtools initialIsOpen={false} />
+    </QueryClientProvider>
+  )
+}
+```
+
+## Fetching data in a page
+
+```tsx
+import { useQuery } from '@tanstack/react-query'
+
+export default function UsersPage() {
+  const { data, isLoading, error } = useQuery({
+    queryKey: ['users'],
+    queryFn: () => fetch('/api/users').then(r => r.json()),
+  })
+
+  if (isLoading) return <p>Loading...</p>
+  if (error) return <p>Error loading users.</p>
+
+  return (
+    <ul>
+      {data?.map(user => (
+        <li key={user.id}>{user.name}</li>
+      ))}
+    </ul>
+  )
+}
+```
+
+## Mutations
+
+```tsx
+import { useMutation, useQueryClient } from '@tanstack/react-query'
+
+export default function CreateUserForm() {
+  const queryClient = useQueryClient()
+
+  const mutation = useMutation({
+    mutationFn: (name: string) =>
+      fetch('/api/users', {
+        method: 'POST',
+        body: JSON.stringify({ name }),
+      }).then(r => r.json()),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['users'] })
+    },
+  })
+
+  return (
+    <button onClick={() => mutation.mutate('New User')}>
+      {mutation.isPending ? 'Creating...' : 'Create User'}
+    </button>
+  )
+}
+```
+
+## Route-level data loading
+
+For data that should load before a page renders, use React Router's `loader` pattern. Add a `loader` export alongside your default page component:
+
+```tsx
+// src/pages/users/[id].tsx
+import { useLoaderData } from 'react-router-dom'
+
+export async function loader({ params }: { params: { id: string } }) {
+  const user = await fetch(`/api/users/${params.id}`).then(r => r.json())
+  return { user }
+}
+
+export default function UserPage() {
+  const { user } = useLoaderData() as { user: { name: string } }
+  return <h1>{user.name}</h1>
+}
+```
+
+React Query and loaders serve different purposes. Use React Query for data shared across components, cached between navigations, or polled. Use loaders for data required before a specific route renders.
