@@ -29,17 +29,30 @@ export function App() {
 ## Exports
 
 ```tsx
-import { CraxRouter, Link, Navigate, Outlet, useRouter, prefetch } from "@crax/router"
+import {
+  CraxRouter,
+  Link,
+  Navigate,
+  Outlet,
+  useRouter,
+  prefetch,
+  useLoaderData,
+  useNavigation,
+  getRoutes,
+} from "@crax/router"
 ```
 
 | Export | Purpose |
 |--------|---------|
-| `<CraxRouter>` | App wrapper — discovers pages, builds routes, renders |
+| `<CraxRouter>` | App wrapper — discovers pages, builds a data router, renders |
 | `<Link>` | Client-side navigation |
 | `<Navigate>` | Declarative redirect (e.g. auth guards) |
 | `<Outlet>` | Layout child rendering |
 | `useRouter()` | Programmatic nav + location + params |
 | `prefetch({ path })` | Manually warm a route's chunk ahead of `router.push()` |
+| `useLoaderData()` | Read the data returned by a page's `loader` export |
+| `useNavigation()` | Read in-flight navigation state (e.g. to build a progress indicator) |
+| `getRoutes()` | Enumerate every discovered route at call time — for SSG/prerender tooling |
 
 ## File Conventions
 
@@ -115,9 +128,12 @@ export default function DashboardLayout() {
 
 ### Loading & Suspense
 
-Every page (and every layout) is code-split and rendered inside its own `Suspense` boundary. Navigating to a route whose chunk hasn't loaded yet only suspends that route's slot — a layout stays mounted (sidebar, nav, etc. don't flicker) while its `<Outlet />` content shows the fallback.
+`CraxRouter` builds a React Router **data router** (`createBrowserRouter` + `<RouterProvider>`), and every page/layout is code-split via `route.lazy`. This changes what `loading.tsx` means:
 
-Drop a `src/pages/loading.tsx` to use your own fallback everywhere; without one, Crax renders a small built-in pulse indicator (no external deps, respects `prefers-reduced-motion`). There's also a top-level `Suspense` around the whole router as a last-resort catch, but in practice the per-route boundary is nearer and handles it first.
+- **Client-side navigation** (clicking a `<Link>`, calling `router.push()`) keeps the **current page mounted and visible** until the next route's module (and `loader`, if it has one) resolves. There is no fallback flash — this is intentional, and matches how most production apps want navigation to feel. Build a progress indicator with `useNavigation()` if you want feedback during the wait.
+- **Initial load** (the first time the router matches a location — a hard refresh, a deep link, or the first paint of the app) shows `loading.tsx` while the matched route's module/loader resolves, since there's no previous page to keep showing yet.
+
+Drop a `src/pages/loading.tsx` to use your own fallback for that initial-load case; without one, Crax renders a small built-in pulse indicator (no external deps, respects `prefers-reduced-motion`). There's also a top-level `Suspense` around the whole router as a last-resort catch for render errors outside the data router's own reach.
 
 ### Special Files
 
@@ -163,6 +179,31 @@ async function onSubmit() {
 }
 ```
 
+## Route Loaders
+
+Export an async `loader` alongside a page's default export to fetch data before the route renders:
+
+```tsx
+// src/pages/users/[id].tsx
+import { useLoaderData } from "@crax/router"
+
+export async function loader({ params }: { params: { id: string } }) {
+  const user = await fetch(`/api/users/${params.id}`).then((r) => r.json())
+  return { user }
+}
+
+export default function UserPage() {
+  const { user } = useLoaderData() as { user: { name: string } }
+  return <h1>{user.name}</h1>
+}
+```
+
+- `loader` is optional — pages without one work exactly as before.
+- `loader` receives `{ params, request }` (React Router's `LoaderFunctionArgs`); the example above only needs `params`.
+- Read the result with `useLoaderData()` (re-exported from `@crax/router`, not `react-router-dom` — keep imports scoped to `@crax/router` everywhere in your pages).
+- See [Loading & Suspense](#loading--suspense) above for how `loader` interacts with navigation: the previous page stays visible while a `loader` runs, so there's no need to hand-roll an `isLoading` flag for route-level data the way you would with `useQuery`.
+- Loaders and React Query serve different purposes: use React Query for data shared across components, cached between navigations, or polled; use a `loader` for data required before a specific route renders.
+
 ## Link
 
 `<Link>` wraps react-router-dom's `Link`. Uses `to` prop:
@@ -185,6 +226,21 @@ Prefetching goes through the same `prefetch({ path })` helper exported from `@cr
 ### `viewTransition`
 
 `<Link viewTransition>` is automatically disabled when the user's OS has `prefers-reduced-motion: reduce` set, regardless of the prop value passed.
+
+## getRoutes()
+
+Enumerates every discovered page route — for SSG/prerender tooling that needs to walk the full route list (crawl every route to pre-render HTML, generate a sitemap, etc.):
+
+```tsx
+import { getRoutes } from "@crax/router"
+
+const routes = getRoutes()
+// [{ path: "/", filePath: "/src/pages/page.tsx", isDynamic: false },
+//  { path: "/products/:id", filePath: "/src/pages/products/[id].tsx", isDynamic: true },
+//  ...]
+```
+
+It's a function, not a constant — call it fresh whenever you need the route list rather than caching its result at module scope. Layouts and special files (`layout.tsx`, `not-found.tsx`, `error.tsx`, `loading.tsx`) are excluded; only actual page routes are returned. `isDynamic` is `true` for routes with a `:param` or `*` catch-all segment — useful for deciding which routes need per-instance handling (e.g. fetching a list of IDs to prerender) versus which can be prerendered as-is.
 
 ## Auth Example
 

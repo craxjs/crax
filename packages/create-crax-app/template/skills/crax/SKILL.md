@@ -90,11 +90,11 @@ File-based via React Router. Drop a file in `src/pages/` and it becomes a route.
 | File | Purpose |
 |------|---------|
 | `layout.tsx` | Wraps all sibling/nested routes in directory |
-| `loading.tsx` | Shown while route loads (per-route Suspense; layout stays mounted) |
-| `error.tsx` | Error boundary for route |
+| `loading.tsx` | Shown on initial load while the matched route resolves |
+| `error.tsx` | Error boundary for route (also catches `loader` errors) |
 | `not-found.tsx` | 404 page |
 
-Every page and layout renders inside its own `Suspense` boundary, so a cache-miss navigation only suspends that route's slot, not the whole app or its parent layout. No `loading.tsx`? Crax falls back to a tiny built-in pulse indicator.
+`CraxRouter` is a React Router **data router** (`createBrowserRouter` + `route.lazy`). Client-side navigation (`<Link>`, `router.push()`) keeps the current page mounted until the next route's module + `loader` resolve — no fallback flash. `loading.tsx` only fires on the initial match of a location (hard refresh, deep link). No `loading.tsx`? Crax falls back to a tiny built-in pulse indicator.
 
 **Layout example:**
 
@@ -113,6 +113,8 @@ export default function DashboardLayout() {
   )
 }
 ```
+
+`getRoutes()` from `@crax/router` enumerates every discovered page route (`{ path, filePath, isDynamic }`) at call time — for SSG/prerender tooling that needs to walk the full route list. It's a function, call it fresh rather than caching the result.
 
 ## Link Component
 
@@ -523,7 +525,24 @@ function UserProfile({ userId }: { userId: string }) {
 }
 ```
 
-Route-level data loading via React Router loaders is also supported.
+Route-level data loading via React Router loaders is also supported. Export an async `loader` alongside a page's default export; read it with `useLoaderData` from `@crax/router` (not `react-router-dom`):
+
+```tsx
+// src/pages/users/[id].tsx
+import { useLoaderData } from '@crax/router'
+
+export async function loader({ params }: { params: { id: string } }) {
+  const user = await fetch(`/api/users/${params.id}`).then(r => r.json())
+  return { user }
+}
+
+export default function UserPage() {
+  const { user } = useLoaderData() as { user: { name: string } }
+  return <h1>{user.name}</h1>
+}
+```
+
+Use React Query for data shared across components, cached between navigations, or polled. Use a `loader` for data required before a specific route renders — the previous page stays visible while it runs, so there's no `isLoading` flag to manage.
 
 ## Deployment
 

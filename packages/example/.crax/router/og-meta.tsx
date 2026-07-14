@@ -1,4 +1,4 @@
-import { lazy, type ComponentType } from 'react'
+import { type ComponentType } from 'react'
 import { Head } from '../seo'
 import config from '../config.mjs'
 
@@ -45,29 +45,36 @@ function createOgMetaWrapper({
 }
 
 /**
- * Drop-in replacement for React.lazy that detects `ogImage` page exports
- * and wraps the component with automatic OG meta injection.
+ * Detects an `ogImage` export on an already-resolved page module and wraps
+ * the given Component with automatic OG meta injection.
+ *
+ * Route objects under React Router's data router resolve `Component` via
+ * `route.lazy`, which awaits the page module up front (needed so `loader`
+ * can be attached alongside it) — so unlike the old React.lazy-based
+ * version of this helper, there's no async boundary left to hide behind.
+ * The caller has already resolved `mod` and picks what to pass as
+ * `Component` (e.g. a PWA-wrapped component), so OG detection still works
+ * regardless of what other wrapping happened first.
  *
  * If the page module exports `ogImage = { title, description, template? }`,
  * the rendered page gets a `<Head>` with og:image, og:title, og:description.
  * User's own `<Head>` calls still work — unhead deduplicates by property name.
  */
-export function createOgAwareLazy(
-  fn: () => Promise<Record<string, unknown>>,
-  routePath: string,
-) {
-  return lazy(async () => {
-    const mod = await fn()
-    const Component = mod.default as ComponentType
-
-    if (mod.ogImage && typeof mod.ogImage === 'object') {
-      const ogImage = mod.ogImage as OgImageData
-      if (ogImage.title && ogImage.description) {
-        const Wrapped = createOgMetaWrapper({ ogImage, routePath, Component })
-        return { default: Wrapped }
-      }
+export function wrapWithOgMeta({
+  mod,
+  Component,
+  routePath,
+}: {
+  mod: Record<string, unknown>
+  Component: ComponentType
+  routePath: string
+}): ComponentType {
+  if (mod.ogImage && typeof mod.ogImage === 'object') {
+    const ogImage = mod.ogImage as OgImageData
+    if (ogImage.title && ogImage.description) {
+      return createOgMetaWrapper({ ogImage, routePath, Component })
     }
+  }
 
-    return { default: Component }
-  })
+  return Component
 }

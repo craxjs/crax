@@ -1,9 +1,25 @@
-import { lazy, Suspense, useMemo, Fragment, type ReactNode, type ComponentType } from "react"
-import { BrowserRouter, Routes, Route, Outlet } from "react-router-dom"
+import { lazy, Suspense, Fragment, type ReactNode, type ComponentType } from "react"
+import {
+  createBrowserRouter,
+  RouterProvider,
+  Outlet,
+  type RouteObject,
+  type LoaderFunction,
+} from "react-router-dom"
 import { ErrorBoundary } from "./error-boundary"
 import { routeImportMap } from "../utils/enhance-router"
-import { createOgAwareLazy } from "./og-meta"
-import { createPwaAwareLazy } from "./pwa-meta"
+import { wrapWithOgMeta } from "./og-meta"
+import { wrapWithPwaMeta } from "./pwa-meta"
+import {
+  PAGE_GLOB,
+  PAGES_DIR,
+  stripExt,
+  isComponentFile,
+  isSpecialFile,
+  isLayoutFile,
+  filePathToRoutePath,
+  getParentDir,
+} from "./manifest"
 
 /**
  * Default Suspense fallback used when a route (or the project) has no
@@ -40,52 +56,16 @@ function DefaultLoadingFallback() {
   )
 }
 
-const PAGE_GLOB = import.meta.glob("/src/pages/**/*.{tsx,mdx}")
-
-const PAGES_DIR = "/src/pages/"
-const EXT_RE = /\.(tsx|mdx)$/
-
-function stripExt(path: string): string {
-  return path.replace(EXT_RE, "")
-}
-
-function isComponentFile(filePath: string): boolean {
-  return filePath.replace(PAGES_DIR, "").split("/").some((s) => s === "components")
-}
-
-function isSpecialFile(filePath: string): boolean {
-  const name = stripExt(filePath.replace(PAGES_DIR, ""))
-  return name === "not-found" || name === "error" || name === "loading"
-}
-
-function isLayoutFile(filePath: string): boolean {
-  const last = filePath.replace(PAGES_DIR, "").split("/").at(-1) ?? ""
-  return last === "layout.tsx" || last === "layout.mdx"
-}
-
-function filePathToRoutePath(filePath: string): string {
-  const path = stripExt(filePath.replace(PAGES_DIR, ""))
-    .replace(/\/page$/, "")
-    .replace(/\[\.{3}.+\]/, "*")
-    .replace(/\[(.+)\]/, ":$1")
-  if (path === "page") return "/"
-  return `/${path}`
-}
-
-function getParentDir(routePath: string): string | null {
-  const segments = routePath.replace(/^\//, "").split("/")
-  if (segments.length <= 1 || segments[0] === "") return null
-  return segments[0]
-}
+type PageImporter = () => Promise<Record<string, unknown>>
 
 const PAGES = Object.fromEntries(
   Object.entries(PAGE_GLOB)
     .filter(([key]) => !isSpecialFile(key) && !isLayoutFile(key) && !isComponentFile(key))
     .map(([key, fn]) => {
       const path = filePathToRoutePath(key)
-      const importFn = fn as () => Promise<Record<string, unknown>>
+      const importFn = fn as PageImporter
       routeImportMap.set(path, importFn)
-      return [path, createOgAwareLazy(createPwaAwareLazy(importFn), path)]
+      return [path, importFn]
     })
 )
 
@@ -94,7 +74,7 @@ const LAYOUTS = Object.fromEntries(
     .filter(([key]) => isLayoutFile(key) && !isComponentFile(key))
     .map(([key, fn]) => {
       const dir = stripExt(key.replace(PAGES_DIR, "")).replace(/\/layout$/, "")
-      return [dir, lazy(fn as () => Promise<{ default: ComponentType<{ children?: ReactNode }> }>)]
+      return [dir, fn as () => Promise<{ default: ComponentType<{ children?: ReactNode }> }>]
     })
 )
 
@@ -103,94 +83,134 @@ const SPECIALS = Object.fromEntries(
     .filter(([key]) => isSpecialFile(key) && !isComponentFile(key))
     .map(([key, fn]) => {
       const name = stripExt(key.replace(PAGES_DIR, ""))
-      return [name, lazy(fn as () => Promise<{ default: ComponentType }>)]
+      return [name, fn as () => Promise<{ default: ComponentType }>]
     })
 )
 
-export function CraxRouter() {
-  const NotFound = SPECIALS["not-found"] ?? Fragment
-  const ErrorFallback = SPECIALS["error"] ?? Fragment
-  const Loading = SPECIALS["loading"]
-  // A user-provided src/pages/loading.tsx always wins over the built-in fallback
-  const loadingFallback = Loading ? <Loading /> : <DefaultLoadingFallback />
+const NotFoundImporter: (() => Promise<{ default: ComponentType }>) | undefined = SPECIALS["not-found"]
+// React.lazy (not route.lazy) on purpose: this needs to be a plain, reusable
+// ComponentType we can hand to both the custom render-time <ErrorBoundary>
+// below and React Router's own per-route `ErrorBoundary` field, which
+// catches loader/action errors that never reach a React error boundary.
+const ErrorSpecial = SPECIALS["error"] ? lazy(SPECIALS["error"]) : null
+const LoadingSpecial = SPECIALS["loading"] ? lazy(SPECIALS["loading"]) : null
 
-  const routeElements = useMemo(() => {
-    const grouped = new Map<string | null, Array<{ path: string; component: ComponentType }>>()
+// A user-provided src/pages/loading.tsx always wins over the built-in fallback.
+// This is now specifically the *initial-load* fallback (`hydrateFallbackElement`
+// below) — with route.lazy, client-side navigations keep the current page
+// mounted until the next route's module + loader resolve, so this only
+// renders on first paint of a location the router hasn't matched before.
+const loadingFallback: ReactNode = LoadingSpecial ? (
+  <Suspense fallback={<DefaultLoadingFallback />}>
+    <LoadingSpecial />
+  </Suspense>
+) : (
+  <DefaultLoadingFallback />
+)
 
-    for (const [path, component] of Object.entries(PAGES)) {
-      const dir = getParentDir(path)
-      const singleSegment = path.replace(/^\//, "")
-      const layoutKey =
-        dir && LAYOUTS[dir] ? dir : !dir && LAYOUTS[singleSegment] ? singleSegment : null
-      if (!grouped.has(layoutKey)) grouped.set(layoutKey, [])
-      grouped.get(layoutKey)!.push({ path, component })
-    }
+/** Builds the `route.lazy` loader for a page: resolves the module, applies OG/PWA wrapping, and attaches `loader` only when the page actually exports one */
+function createPageLazy({
+  path,
+  importFn,
+}: {
+  path: string
+  importFn: PageImporter
+}): () => Promise<{ Component: ComponentType; loader?: LoaderFunction }> {
+  return async () => {
+    const mod = await importFn()
+    const base = mod.default as ComponentType
+    const pwaWrapped = wrapWithPwaMeta({ Component: base })
+    const Component = wrapWithOgMeta({ mod, Component: pwaWrapped, routePath: path })
+    const loader = typeof mod.loader === "function" ? (mod.loader as LoaderFunction) : undefined
+    return loader ? { Component, loader } : { Component }
+  }
+}
 
-    const elements: ReactNode[] = []
+function buildRoutes(): RouteObject[] {
+  const grouped = new Map<string | null, Array<{ path: string; importFn: PageImporter }>>()
 
-    // Each leaf page gets its own Suspense boundary so a cache-miss navigation
-    // only ever suspends that page's slot — never the whole app, never a
-    // parent layout (which lives outside this boundary, see below).
-    for (const [dir, pages] of grouped) {
-      if (dir === null) {
-        for (const page of pages) {
-          const Comp = page.component
-          elements.push(
-            <Route
-              key={page.path}
-              path={page.path}
-              element={<Suspense fallback={loadingFallback}><Comp /></Suspense>}
-            />
-          )
-        }
-      } else {
-        const Layout = LAYOUTS[dir]
-        const children = pages.map((page) => {
-          const Comp = page.component
-          const isIndex = page.path === `/${dir}`
-          const childPath = isIndex ? undefined : page.path.replace(`/${dir}/`, "")
-          const element = <Suspense fallback={loadingFallback}><Comp /></Suspense>
-          return isIndex ? (
-            <Route key={page.path} index element={element} />
-          ) : (
-            <Route key={page.path} path={childPath} element={element} />
-          )
+  for (const [path, importFn] of Object.entries(PAGES)) {
+    const dir = getParentDir(path)
+    const singleSegment = path.replace(/^\//, "")
+    const layoutKey = dir && LAYOUTS[dir] ? dir : !dir && LAYOUTS[singleSegment] ? singleSegment : null
+    if (!grouped.has(layoutKey)) grouped.set(layoutKey, [])
+    grouped.get(layoutKey)!.push({ path, importFn })
+  }
+
+  const routes: RouteObject[] = []
+
+  for (const [dir, pages] of grouped) {
+    if (dir === null) {
+      for (const page of pages) {
+        routes.push({
+          path: page.path,
+          lazy: createPageLazy(page),
+          hydrateFallbackElement: loadingFallback,
+          ErrorBoundary: ErrorSpecial ?? undefined,
         })
-        elements.push(
-          // Suspense here only guards the Layout's own lazy load (first mount).
-          // Child pages suspend inside their own boundary above, rendered via
-          // <Outlet />, so switching pages never unmounts the layout.
-          <Route
-            key={dir}
-            path={`/${dir}`}
-            element={
-              <Suspense fallback={loadingFallback}>
-                <Layout>
-                  <Outlet />
-                </Layout>
-              </Suspense>
-            }
-          >
-            {children}
-          </Route>
-        )
       }
+      continue
     }
 
-    return elements
-  }, [loadingFallback])
+    const layoutImportFn = LAYOUTS[dir]
+    const children: RouteObject[] = pages.map((page) => {
+      const isIndex = page.path === `/${dir}`
+      const childPath = isIndex ? undefined : page.path.replace(`/${dir}/`, "")
+      const base = {
+        lazy: createPageLazy(page),
+        hydrateFallbackElement: loadingFallback,
+        ErrorBoundary: ErrorSpecial ?? undefined,
+      }
+      return isIndex ? { index: true, ...base } : { path: childPath, ...base }
+    })
 
+    routes.push({
+      path: `/${dir}`,
+      lazy: async () => {
+        const mod = await layoutImportFn()
+        const Layout = mod.default
+        return {
+          Component: () => (
+            <Layout>
+              <Outlet />
+            </Layout>
+          ),
+        }
+      },
+      hydrateFallbackElement: loadingFallback,
+      ErrorBoundary: ErrorSpecial ?? undefined,
+      children,
+    })
+  }
+
+  routes.push({
+    path: "*",
+    lazy: async () => {
+      if (!NotFoundImporter) return { Component: Fragment }
+      const mod = await NotFoundImporter()
+      return { Component: mod.default }
+    },
+    hydrateFallbackElement: loadingFallback,
+    ErrorBoundary: ErrorSpecial ?? undefined,
+  })
+
+  return routes
+}
+
+// Created once at module scope, not per-render: `createBrowserRouter` owns
+// browser history — recreating it on every CraxRouter render (e.g. inside a
+// hook) would reset navigation state and attach duplicate history listeners.
+const router = createBrowserRouter(buildRoutes())
+
+export function CraxRouter() {
   return (
-    <ErrorBoundary fallback={ErrorFallback}>
-      {/* Last-resort boundary for the initial load — per-route Suspense above
-          normally catches suspensions first since it's the nearer boundary. */}
+    <ErrorBoundary fallback={ErrorSpecial ?? Fragment}>
+      {/* Last-resort boundary — catches render errors outside the data
+          router's own reach (e.g. while a HydrateFallback itself renders).
+          The route-level `ErrorBoundary` field above normally handles
+          loader/render errors first since it's the nearer boundary. */}
       <Suspense fallback={loadingFallback}>
-        <BrowserRouter>
-          <Routes>
-            {routeElements}
-            <Route path="*" element={<Suspense fallback={loadingFallback}><NotFound /></Suspense>} />
-          </Routes>
-        </BrowserRouter>
+        <RouterProvider router={router} />
       </Suspense>
     </ErrorBoundary>
   )

@@ -1,5 +1,4 @@
-import { useQuery } from '@tanstack/react-query'
-import { useRouter } from '@crax/router'
+import { useLoaderData } from '@crax/router'
 import { Head } from '@crax/seo'
 import { useFavorites } from '../../stores/favorites'
 
@@ -11,16 +10,29 @@ type PokemonDetail = {
   stats: { base_stat: number; stat: { name: string } }[]
 }
 
-export default function PokemonDetailPage() {
-  const router = useRouter()
-  const id = Number(router.params.id)
-  const { toggle, isFavorite } = useFavorites()
+type PokemonLoaderData = {
+  pokemon: PokemonDetail | null
+}
 
-  const { data, isLoading, error } = useQuery<PokemonDetail>({
-    queryKey: ['pokemon-detail', id],
-    queryFn: () =>
-      fetch(`https://pokeapi.co/api/v2/pokemon/${id}`).then((r) => r.json()),
-  })
+/**
+ * Fetches the Pokemon before the route renders — under Crax's data router,
+ * navigation keeps the previous page mounted until this resolves, so there's
+ * no client-visible loading state to manage here (unlike the old
+ * `useQuery`-on-mount version of this page). A failed fetch resolves to
+ * `{ pokemon: null }` rather than throwing, so the page keeps its own
+ * themed "Failed to load" UI instead of falling through to the router's
+ * generic error boundary.
+ */
+export async function loader({ params }: { params: { id: string } }): Promise<PokemonLoaderData> {
+  const res = await fetch(`https://pokeapi.co/api/v2/pokemon/${params.id}`)
+  if (!res.ok) return { pokemon: null }
+  const pokemon = (await res.json()) as PokemonDetail
+  return { pokemon }
+}
+
+export default function PokemonDetailPage() {
+  const { pokemon: data } = useLoaderData() as PokemonLoaderData
+  const { toggle, isFavorite } = useFavorites()
 
   const name = data?.name ?? 'Pokemon'
   const artwork =
@@ -35,11 +47,7 @@ export default function PokemonDetailPage() {
         <meta name="description" content={`Stats and info for ${name}`} />
       </Head>
 
-      {isLoading ? (
-        <main className="flex min-h-screen items-center justify-center bg-neutral-950 text-white">
-          <p className="text-neutral-500">Loading...</p>
-        </main>
-      ) : error || !data ? (
+      {!data ? (
         <main className="flex min-h-screen items-center justify-center bg-neutral-950 text-white">
           <p className="text-red-500">Failed to load Pokemon.</p>
         </main>

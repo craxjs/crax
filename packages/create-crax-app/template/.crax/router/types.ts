@@ -24,6 +24,16 @@ export type SpecialFiles = {
   loading: ComponentType | null
 }
 
+/** A route discovered by `getRoutes()` — call-time enumeration for SSG/prerender tooling */
+export type RouteDescriptor = {
+  /** URL path (e.g., "/products/:id") */
+  path: string
+  /** Source file path relative to the project, as returned by the pages glob */
+  filePath: string
+  /** True when `path` contains a `:param` or `*` catch-all segment */
+  isDynamic: boolean
+}
+
 /** return type of useRouter() */
 export type CraxRouter = {
   /** Navigate to a path (pushes to history) */
