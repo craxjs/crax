@@ -1,13 +1,15 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
-import { HelmetProvider } from 'react-helmet-async'
+import { UnheadProvider, createHead } from '@unhead/react/client'
 import './index.css'
 import App from './App'
 
+const head = createHead()
+
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <HelmetProvider>
+    <UnheadProvider head={head}>
       <App />
-    </HelmetProvider>
+    </UnheadProvider>
   </StrictMode>
 )

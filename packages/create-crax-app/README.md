@@ -22,7 +22,7 @@ Most applications don't need server rendering. They need fast development, predi
 npx @craxjs/crax create my-app
 ```
 
-> Open source and community driven.
+> Open source and purpose driven.
 
 ## Why Crax exists
 

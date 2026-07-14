@@ -1,5 +1,4 @@
 import { useSyncExternalStore, useCallback, useEffect, useRef, type DependencyList } from 'react';
-import { getChanges } from './utils';
 import equal from 'fast-deep-equal/react';
 
 // #region Types
@@ -101,18 +100,12 @@ export function createStore<T>(
         return;
       }
 
-      const changes =
-        typeof state === 'object' && state !== null && typeof newValue === 'object' && newValue !== null
-          ? getChanges(state, newValue)
-          : state === newValue
-          ? {}
-          : { value: newValue };
-      if (Object.keys(changes).length > 0) {
-        updateHistory(state);
-        state = newValue;
-        for (const callback of subscribers.values()) {
-          callback();
-        }
+      if (equal(state, newValue)) return;
+
+      updateHistory(state);
+      state = newValue;
+      for (const callback of subscribers.values()) {
+        callback();
       }
     },
 
@@ -122,18 +115,12 @@ export function createStore<T>(
         return;
       }
       const newValue = updater(state);
-      const changes =
-        typeof state === 'object' && state !== null && typeof newValue === 'object' && newValue !== null
-          ? getChanges(state, newValue)
-          : state === newValue
-          ? {}
-          : { value: newValue };
-      if (Object.keys(changes).length > 0) {
-        updateHistory(state);
-        state = newValue;
-        for (const callback of subscribers.values()) {
-          callback();
-        }
+      if (equal(state, newValue)) return;
+
+      updateHistory(state);
+      state = newValue;
+      for (const callback of subscribers.values()) {
+        callback();
       }
     },
 
