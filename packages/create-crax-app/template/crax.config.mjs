@@ -1,6 +1,5 @@
 /** @type {import('./.crax/types/config.types.ts').CraxConfig} */
 export default {
-  templateVersion: 1,
   siteUrl: 'https://example.com',
   pagesDir: 'src/pages',
   pageExtensions: ['tsx'],
