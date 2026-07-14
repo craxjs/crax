@@ -260,8 +260,8 @@ Export a default React component from any of these files and it becomes a route.
 |------|---------|
 | `layout.tsx` | Shared layout for a directory |
 | `not-found.tsx` | 404 page |
-| `error.tsx` | Error boundary fallback |
-| `loading.tsx` | Suspense fallback |
+| `error.tsx` | Error boundary fallback (also catches `loader` errors) |
+| `loading.tsx` | Initial-load fallback |
 
 ## Layouts
 
@@ -276,7 +276,9 @@ src/pages/
   └── page.tsx            # Renders at /
 ```
 
-Every page and layout renders inside its own `Suspense` boundary, so navigating to a route whose chunk hasn't loaded yet only suspends that route's slot — a layout (sidebar, nav, etc.) stays mounted while its `<Outlet />` content shows the loading fallback. Drop a `src/pages/loading.tsx` to use your own fallback; without one, Crax renders a small built-in pulse indicator that respects `prefers-reduced-motion`.
+`CraxRouter` builds a React Router **data router** (`createBrowserRouter` + `route.lazy`) under the hood. Client-side navigation (`<Link>`, `router.push()`) keeps the *current* page mounted and visible until the next route's module (and `loader`, if it has one — see [Data Fetching](/crax/guide/features/data-fetching.md)) resolves. There's no fallback flash on navigation; that's intentional.
+
+`src/pages/loading.tsx` is shown only on the **initial load** of a location — a hard refresh or deep link, where there's no previous page to keep showing. Drop one to use your own fallback for that case; without one, Crax renders a small built-in pulse indicator that respects `prefers-reduced-motion`.
 
 The layout component must render `<Outlet />` to show the active child route:
 
@@ -349,6 +351,14 @@ async function onSubmit() {
   router.push('/dashboard')
 }
 ```
+
+## Route Loaders
+
+Pages can export an async `loader` to fetch data before the route renders. See [Data Fetching](/crax/guide/features/data-fetching.md#route-level-data-loading) for the full pattern.
+
+## getRoutes()
+
+`getRoutes()` enumerates every discovered page route (`{ path, filePath, isDynamic }`), resolved fresh on each call — useful for SSG/prerender tooling that needs the full route list. See [Static Site Generation](/crax/guide/features/ssg.md) for an example.
 
 
 
@@ -575,11 +585,11 @@ export default function CreateUserForm() {
 
 ## Route-level data loading
 
-For data that should load before a page renders, use React Router's `loader` pattern. Add a `loader` export alongside your default page component:
+For data that should load before a page renders, use Crax's `loader` pattern (built on React Router's data router). Add a `loader` export alongside your default page component and read it with `useLoaderData` — both from `@crax/router`, not `react-router-dom`:
 
 ```tsx
 // src/pages/users/[id].tsx
-import { useLoaderData } from 'react-router-dom'
+import { useLoaderData } from '@crax/router'
 
 export async function loader({ params }: { params: { id: string } }) {
   const user = await fetch(`/api/users/${params.id}`).then(r => r.json())
@@ -591,6 +601,10 @@ export default function UserPage() {
   return <h1>{user.name}</h1>
 }
 ```
+
+`loader` is optional — pages without one work exactly as before. When present, it runs before the page mounts. Client-side navigation (`<Link>`, `router.push()`) keeps the *previous* page visible while the loader runs — there's no flash to a loading state, so unlike `useQuery` there's no `isLoading` to manage. Use `useNavigation()` from `@crax/router` if you want to show in-flight navigation feedback (e.g. a top progress bar). On the initial load of a location (a hard refresh or deep link, where there's no previous page to keep showing), Crax shows `src/pages/loading.tsx` (or its built-in fallback) while the loader resolves — see [Routing](/crax/guide/features/routing.md) for details.
+
+If the loader throws, the nearest `error.tsx` handles it the same way it handles render errors.
 
 React Query and loaders serve different purposes. Use React Query for data shared across components, cached between navigations, or polled. Use loaders for data required before a specific route renders.
 
@@ -1408,12 +1422,20 @@ export default defineConfig({
 })
 ```
 
-Update `src/main.tsx`:
+Update `src/main.tsx`. Crax's router builds its own React Router data router internally, so it doesn't export a `routes` config object — use `getRoutes()` to enumerate the discovered pages and pass their paths instead:
 
 ```tsx
 import { ViteSSG } from 'vite-ssg'
 import App from './App'
-import { routes } from '@crax/router'
+import { getRoutes } from '@crax/router'
+
+// getRoutes() is resolved at call time (SSG/prerender tooling always wants
+// the current page tree, never a stale cached list). Filter out dynamic
+// segments (":id", "*") unless you also generate the concrete paths to
+// prerender for them (e.g. fetch a list of slugs and map each to its own path).
+const routes = getRoutes()
+  .filter((route) => !route.isDynamic)
+  .map((route) => route.path)
 
 export const createApp = ViteSSG(App, { routes })
 ```
