@@ -1,5 +1,6 @@
 [
   { "type": "dir-section-header", "name": "start", "label": "Getting Started" },
   { "type": "dir-section-header", "name": "features", "label": "Features" },
-  { "type": "dir-section-header", "name": "examples", "label": "Examples" }
+  { "type": "dir-section-header", "name": "examples", "label": "Examples" },
+  { "type": "file", "name": "skill", "label": "AI Skill" }
 ]
