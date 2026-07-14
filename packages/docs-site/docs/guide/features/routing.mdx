@@ -22,8 +22,8 @@ Export a default React component from any of these files and it becomes a route.
 |------|---------|
 | `layout.tsx` | Shared layout for a directory |
 | `not-found.tsx` | 404 page |
-| `error.tsx` | Error boundary fallback |
-| `loading.tsx` | Suspense fallback |
+| `error.tsx` | Error boundary fallback (also catches `loader` errors) |
+| `loading.tsx` | Initial-load fallback |
 
 ## Layouts
 
@@ -38,7 +38,9 @@ src/pages/
   └── page.tsx            # Renders at /
 ```
 
-Every page and layout renders inside its own `Suspense` boundary, so navigating to a route whose chunk hasn't loaded yet only suspends that route's slot — a layout (sidebar, nav, etc.) stays mounted while its `<Outlet />` content shows the loading fallback. Drop a `src/pages/loading.tsx` to use your own fallback; without one, Crax renders a small built-in pulse indicator that respects `prefers-reduced-motion`.
+`CraxRouter` builds a React Router **data router** (`createBrowserRouter` + `route.lazy`) under the hood. Client-side navigation (`<Link>`, `router.push()`) keeps the *current* page mounted and visible until the next route's module (and `loader`, if it has one — see [Data Fetching](/guide/features/data-fetching)) resolves. There's no fallback flash on navigation; that's intentional.
+
+`src/pages/loading.tsx` is shown only on the **initial load** of a location — a hard refresh or deep link, where there's no previous page to keep showing. Drop one to use your own fallback for that case; without one, Crax renders a small built-in pulse indicator that respects `prefers-reduced-motion`.
 
 The layout component must render `<Outlet />` to show the active child route:
 
@@ -111,4 +113,12 @@ async function onSubmit() {
   router.push('/dashboard')
 }
 ```
+
+## Route Loaders
+
+Pages can export an async `loader` to fetch data before the route renders. See [Data Fetching](/guide/features/data-fetching#route-level-data-loading) for the full pattern.
+
+## getRoutes()
+
+`getRoutes()` enumerates every discovered page route (`{ path, filePath, isDynamic }`), resolved fresh on each call — useful for SSG/prerender tooling that needs the full route list. See [Static Site Generation](/guide/features/ssg) for an example.
 

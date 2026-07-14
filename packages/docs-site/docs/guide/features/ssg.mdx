@@ -57,12 +57,20 @@ export default defineConfig({
 })
 ```
 
-Update `src/main.tsx`:
+Update `src/main.tsx`. Crax's router builds its own React Router data router internally, so it doesn't export a `routes` config object — use `getRoutes()` to enumerate the discovered pages and pass their paths instead:
 
 ```tsx
 import { ViteSSG } from 'vite-ssg'
 import App from './App'
-import { routes } from '@crax/router'
+import { getRoutes } from '@crax/router'
+
+// getRoutes() is resolved at call time (SSG/prerender tooling always wants
+// the current page tree, never a stale cached list). Filter out dynamic
+// segments (":id", "*") unless you also generate the concrete paths to
+// prerender for them (e.g. fetch a list of slugs and map each to its own path).
+const routes = getRoutes()
+  .filter((route) => !route.isDynamic)
+  .map((route) => route.path)
 
 export const createApp = ViteSSG(App, { routes })
 ```

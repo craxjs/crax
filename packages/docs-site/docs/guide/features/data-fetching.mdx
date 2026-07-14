@@ -89,11 +89,11 @@ export default function CreateUserForm() {
 
 ## Route-level data loading
 
-For data that should load before a page renders, use React Router's `loader` pattern. Add a `loader` export alongside your default page component:
+For data that should load before a page renders, use Crax's `loader` pattern (built on React Router's data router). Add a `loader` export alongside your default page component and read it with `useLoaderData` — both from `@crax/router`, not `react-router-dom`:
 
 ```tsx
 // src/pages/users/[id].tsx
-import { useLoaderData } from 'react-router-dom'
+import { useLoaderData } from '@crax/router'
 
 export async function loader({ params }: { params: { id: string } }) {
   const user = await fetch(`/api/users/${params.id}`).then(r => r.json())
@@ -105,5 +105,9 @@ export default function UserPage() {
   return <h1>{user.name}</h1>
 }
 ```
+
+`loader` is optional — pages without one work exactly as before. When present, it runs before the page mounts. Client-side navigation (`<Link>`, `router.push()`) keeps the *previous* page visible while the loader runs — there's no flash to a loading state, so unlike `useQuery` there's no `isLoading` to manage. Use `useNavigation()` from `@crax/router` if you want to show in-flight navigation feedback (e.g. a top progress bar). On the initial load of a location (a hard refresh or deep link, where there's no previous page to keep showing), Crax shows `src/pages/loading.tsx` (or its built-in fallback) while the loader resolves — see [Routing](/guide/features/routing) for details.
+
+If the loader throws, the nearest `error.tsx` handles it the same way it handles render errors.
 
 React Query and loaders serve different purposes. Use React Query for data shared across components, cached between navigations, or polled. Use loaders for data required before a specific route renders.
