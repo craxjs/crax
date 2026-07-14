@@ -544,6 +544,29 @@ export default function UserPage() {
 
 Use React Query for data shared across components, cached between navigations, or polled. Use a `loader` for data required before a specific route renders — the previous page stays visible while it runs, so there's no `isLoading` flag to manage.
 
+### Navigation State Feedback
+
+Use `useNavigation()` from `@crax/router` to show in-flight navigation feedback (e.g. a top progress bar) while a route loader runs:
+
+```tsx
+import { useNavigation } from '@crax/router'
+
+function ProgressBar() {
+  const navigation = useNavigation()
+  
+  return navigation.state === 'loading' ? (
+    <div className="h-1 bg-blue-500 animate-pulse" />
+  ) : null
+}
+```
+
+`navigation` has:
+- `state`: `'idle' | 'loading' | 'submitting'`
+- `location`: The location being navigated to (when `state !== 'idle'`)
+- `formData`: Form data if the transition was from a `<Form>`
+
+This is only useful when routes have `loader` functions. For client-side data loading with React Query, manage loading state directly with `useQuery`'s `isLoading` flag instead.
+
 ## Deployment
 
 ```bash

@@ -88,9 +88,50 @@ File-based via React Router. Drop a file in `src/pages/` and it becomes a route.
 | File | Purpose |
 |------|---------|
 | `layout.tsx` | Wraps all sibling/nested routes in directory |
-| `loading.tsx` | Shown while route loads |
-| `error.tsx` | Error boundary for route |
+| `loading.tsx` | Shown on initial load while route resolves (hard refresh, deep link) |
+| `error.tsx` | Error boundary for route (also catches `loader` errors) |
 | `not-found.tsx` | 404 page |
+
+## Link & Navigation
+
+Use `Link` for client-side navigation with automatic prefetching:
+
+```tsx
+import { Link, useRouter, prefetch } from '@crax/router'
+
+// Smart prefetch: hover, focus, pointerdown, or viewport visibility
+<Link to="/dashboard">Dashboard</Link>
+
+// Foresight: predict intent from cursor movement
+<Link to="/pricing" prefetch="foresight">Pricing</Link>
+
+// No prefetch
+<Link to="/terms" prefetch="none">Terms</Link>
+
+// With view transitions
+<Link to="/about" viewTransition>About</Link>
+```
+
+Programmatically navigate with `useRouter()` and prefetch manually:
+
+```tsx
+const router = useRouter()
+
+async function onSubmit() {
+  prefetch({ path: '/dashboard' })
+  await saveForm()
+  router.push('/dashboard')
+}
+```
+
+Enumerate routes for SSG with `getRoutes()`:
+
+```tsx
+import { getRoutes } from '@crax/router'
+
+const routes = getRoutes()
+// Returns [{ path: "/", filePath: "...", isDynamic: false }, ...]
+```
 
 ## State Management
 
@@ -177,7 +218,28 @@ import { Image, Picture } from '@crax/image'
   <source media="(min-width: 641px)" srcSet="/hero-desktop.jpg" />
   <Image src="/hero.jpg" alt="Hero" width={1200} height={600} />
 </Picture>
+
+// Full-width with priority (LCP image)
+<Image src="/hero.jpg" alt="Hero" layout="fullWidth" priority />
+
+// Local image with blur placeholder
+<Image
+  src={heroUrl}
+  alt="Hero"
+  width={1200}
+  height={600}
+  background={heroBlur}
+/>
 ```
+
+`width`+`height` are required at compile time (type error otherwise) unless `layout="fullWidth"` — this prevents layout shift. For local images, build a tiny inlined blur placeholder:
+
+```tsx
+import heroUrl from '@/assets/hero.jpg?w=1200&format=webp'
+import heroBlur from '@/assets/hero.jpg?w=24&blur=3&format=webp&inline'
+```
+
+The `priority` prop on Image or Picture enables eager loading and high fetch priority — reserve it for the above-the-fold image likely to be the Largest Contentful Paint.
 
 ## SEO (Head Component)
 
@@ -273,6 +335,32 @@ function UserProfile({ userId }: { userId: string }) {
   return <div>{data.name}</div>
 }
 ```
+
+For data that should load before a route renders, use route loaders:
+
+```tsx
+// src/pages/users/[id].tsx
+import { useLoaderData, useNavigation } from '@crax/router'
+
+export async function loader({ params }: { params: { id: string } }) {
+  const user = await fetch(`/api/users/${params.id}`).then(r => r.json())
+  return { user }
+}
+
+export default function UserPage() {
+  const { user } = useLoaderData() as { user: { name: string } }
+  const navigation = useNavigation()
+  
+  return (
+    <>
+      {navigation.state === 'loading' && <progress />}
+      <h1>{user.name}</h1>
+    </>
+  )
+}
+```
+
+Route loaders run before the page mounts. Use `useNavigation()` to show feedback (e.g. progress bars) while loaders run. The previous page stays visible during the transition — no flash to a loading state.
 
 ## Deployment
 
