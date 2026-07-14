@@ -35,18 +35,24 @@ Your app is now running at `http://localhost:5173`.
 my-app/
 ├── .crax/              # Framework source, yours to read and modify
 │   ├── router/         # File-based routing
-│   ├── store/          # State management
-│   ├── image/          # Image components
-│   └── hooks/          # useForesight and other hooks
-├── src/
+│   ├── store/          # Global state (createStore, useStore)
+│   ├── image/          # Image and Picture components
+│   ├── seo/            # Head component for document metadata
+│   ├── hooks/          # useForesight and other hooks
+│   ├── pwa/            # PWA icon and manifest generation
+│   ├── scripts/        # Build-time scripts
+│   ├── types/          # Shared TypeScript types
+│   └── utils/          # Internal utilities
+├ src/
 │   ├── pages/
-│   │   ├── page.tsx    # Home page -> /
-│   │   └── not-found.tsx
-│   ├── App.tsx
-│   ├── main.tsx
-│   └── index.css
-├── crax.config.mjs     # Your config
-└── vite.config.ts
+│   │   ├── page.tsx        # Home page -> /
+│   │   └── not-found.tsx   # 404 page
+│   ├── App.tsx             # Root component, QueryClient setup
+│   ├── main.tsx            # Entry point
+│   └── index.css           # Global styles
+├ crax.config.mjs           # Your config
+├ vite.config.ts            # Vite config (do not touch)
+└ package.json
 ```
 
 ## Add a new page

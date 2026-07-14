@@ -73,7 +73,7 @@ const FEATURES: Feature[] = [
   {
     Icon: FiCpu,
     title: 'Global State, Zero Setup',
-    body: 'Create a store, subscribe to it, done. Works like useState with no external dependencies and no boilerplate.',
+    body: 'Like useState, but global. createStore gives you a reactive store with no providers, no boilerplate, and no re-render pitfalls. Subscribe from any component, update from anywhere.',
   },
   {
     Icon: FiImage,
@@ -139,7 +139,7 @@ export default function Home() {
             <span className="highlight">Crax</span>
           </motion.h1>
           <motion.p className="hero-tagline" variants={fadeUp}>
-            A lightweight React framework built on Vite. A Next.js alternative that brings back the simplicity of Create React App. Frontend should just be frontend.
+            A lightweight React framework built on Vite. A Next.js alternative that brings back the simplicity of Create React App. Frontend should not require a server, edge functions, or complex caching layers to render a page. Most apps are client-side. Crax is built for that reality.
           </motion.p>
           <motion.div className="hero-actions" variants={fadeUp}>
             <motion.a
