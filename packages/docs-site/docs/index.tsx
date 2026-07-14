@@ -139,7 +139,7 @@ export default function Home() {
             <span className="highlight">Crax</span>
           </motion.h1>
           <motion.p className="hero-tagline" variants={fadeUp}>
-            A lightweight React framework built on Vite. A Next.js alternative that brings back the simplicity of Create React App. And argues that frontend should just be frontend.
+            A lightweight React framework built on Vite. A Next.js alternative that brings back the simplicity of Create React App and argues that frontend should just be frontend.
           </motion.p>
           <motion.div className="hero-actions" variants={fadeUp}>
             <motion.a
@@ -216,9 +216,9 @@ export default function Home() {
 
       <footer className="home-footer">
         <p>
-          Built by{' '}
-          <a href="https://github.com/craxjs" rel="noopener noreferrer" target="_blank">
-            Crax Team
+          Created Due To Frustration By
+          <a href="https://github.com/Hussseinkizz" rel="noopener noreferrer" target="_blank" className="px-2">
+            Hussein Kizz
           </a>
         </p>
       </footer>
