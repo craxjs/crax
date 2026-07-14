@@ -139,7 +139,7 @@ export default function Home() {
             <span className="highlight">Crax</span>
           </motion.h1>
           <motion.p className="hero-tagline" variants={fadeUp}>
-            A lightweight React framework for dashboards, web apps, and internal tools. Built on Vite. Fast startup, minimal footprint, and framework source code included in every project.
+            A React framework built on Vite. Builds anything React can build, with the entire framework source included in every project. Fast startup, minimal footprint, and deploys to any static host.
           </motion.p>
           <motion.div className="hero-actions" variants={fadeUp}>
             <motion.a
@@ -151,7 +151,7 @@ export default function Home() {
             </motion.a>
             <motion.a
               className="btn btn-secondary"
-              href="https://github.com/Hussseinkizz/crax"
+              href="https://github.com/craxjs/crax"
               rel="noopener noreferrer"
               target="_blank"
               whileHover={reduce ? undefined : { y: -2 }}
@@ -217,8 +217,8 @@ export default function Home() {
       <footer className="home-footer">
         <p>
           Built by{' '}
-          <a href="https://github.com/Hussseinkizz" rel="noopener noreferrer" target="_blank">
-            Hussein Kizz
+          <a href="https://github.com/craxjs" rel="noopener noreferrer" target="_blank">
+            Crax Team
           </a>
         </p>
       </footer>

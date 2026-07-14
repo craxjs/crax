@@ -4,11 +4,9 @@ title: Introduction
 
 # Introduction
 
-**CRAX** (Create React App Xtended) is a lightweight React framework for dashboards, web apps, and internal tools. Built on Vite. Includes the entire framework source in every project.
+**CRAX** (Create React App Xtended) is a React framework built on Vite. It builds anything React can build, from dashboards and internal tools to marketing sites and full web applications. The entire framework source ships into every project.
 
-It also works for websites, static sites, or anything Vite can ship. No SSR, ISR, or complex rendering patterns. Frontend should just be frontend with no servers involved.
-
-For server needs, a traditional Node server is less than 50 lines of code. Or use a framework like Next.js which has more in store. Crax is just the frontend, meant to be simple and boring.
+Crax is client-side only. No SSR, ISR, or server rendering. If a project needs server rendering, Next.js or Astro are better fits. For everything else, Crax keeps the foundation clean and the deployment simple.
 
 ```bash
 npx @craxjs/crax create my-app
@@ -36,7 +34,7 @@ The learning surface is small because it is built on tools already familiar to R
 
 ## Fast and light by default
 
-Frameworks with server-side rendering carry significant overhead: large dependency trees, slow dev server startup, and complex caching layers. Most dashboards and internal tools do not need that complexity.
+Frameworks with server-side rendering carry significant overhead: large dependency trees, slow dev server startup, and complex caching layers. Most applications do not need that complexity.
 
 Crax is built on Vite. There is no server runtime, no RSC compilation, and no caching layer to understand. Build output goes to `dist/`, deploys to any static host or CDN, and it works. Open source, no vendor lock-in.
 
@@ -57,4 +55,4 @@ Crax is built on Vite. There is no server runtime, no RSC compilation, and no ca
 - Not an SSR or SSG tool. If server-rendered HTML on first load is a hard requirement, Next.js or Astro are better fits.
 - Not a component library. Tailwind v4 is included, shadcn/ui is an optional add-on.
 
-Crax is for client-rendered applications that need a clean foundation, fast tooling, and readable, modifiable framework source.
+Crax is for client-rendered applications that need a clean foundation, fast tooling, and readable, modifiable framework source. It builds anything React can build.
