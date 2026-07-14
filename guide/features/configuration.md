@@ -44,11 +44,11 @@ Image optimization settings:
 
 | Option | Type | Description |
 |--------|------|-------------|
-| `deviceSizes` | `number[]` | Pixel widths for srcset generation |
-| `formats` | `string[]` | Output formats (`'webp'`, `'avif'`, etc.) |
-| `defaultProps.sizes` | `string` | Default `sizes` attribute |
-| `defaultProps.loading` | `'lazy' \| 'eager'` | Default loading behavior |
-| `defaultProps.decoding` | `'async' \| 'sync' \| 'auto'` | Default decoding |
+| `deviceSizes` | `number[]` | Declared, but **not wired anywhere yet** — reserved for a future pass |
+| `formats` | `string[]` | Output formats (`'webp'`, `'avif'`, etc.). Only `formats[0]` is wired: `vite.config.ts` sets it as the default `format` directive for directive-less local image imports (see [Image Optimization](/crax/guide/features/image-optimization.md)) |
+| `defaultProps.sizes` | `string` | Declared, but **not wired anywhere yet** |
+| `defaultProps.loading` | `'lazy' \| 'eager'` | Declared, but **not wired anywhere yet** |
+| `defaultProps.decoding` | `'async' \| 'sync' \| 'auto'` | Declared, but **not wired anywhere yet** |
 
 ### `pwa`
 

@@ -50,7 +50,7 @@ Native browser page transitions via `useViewTransition` hook. Also available as 
 
 ## Link Prefetching
 
-Three prefetch strategies on the `Link` component: `smart` (viewport-based), `foresight` (cursor trajectory prediction), and `none`.
+Three prefetch strategies on the `Link` component: `smart` (hover, focus, and pointerdown, plus a viewport-observation baseline), `foresight` (cursor trajectory prediction), and `none`.
 
 [Routing docs](/crax/guide/features/routing.md#navigation)
 
