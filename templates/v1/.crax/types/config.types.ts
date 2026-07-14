@@ -29,6 +29,7 @@ export interface OGConfig {
 }
 
 export interface CraxConfig {
+  templateVersion: number;
   siteUrl?: string; // used for canonical URLs, SEO
   pagesDir: string;
   pageExtensions: string[];

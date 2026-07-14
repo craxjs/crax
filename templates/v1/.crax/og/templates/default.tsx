@@ -1,3 +1,4 @@
+import React from 'react'
 import type { OGImageConfig } from '../types'
 
 type DefaultTemplateProps = Pick<OGImageConfig, 'title' | 'description'>
