@@ -9,7 +9,7 @@
 <script defer src="/crax/static/js/lib-react.37cacea705.js"></script>
 <script defer src="/crax/static/js/lib-router.42e5d047de.js"></script>
 <script defer src="/crax/static/js/5469.e3349cc9bf.js"></script>
-<script defer src="/crax/static/js/index.8627aff89e.js"></script>
+<script defer src="/crax/static/js/index.5add4f37e9.js"></script>
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="generator" content="Rspress v2.0.17">
 <link rel="icon" href="/crax/rspress-icon.png">
@@ -36,7 +36,7 @@
 <p>Every page and layout renders inside its own <code>Suspense</code> boundary, so navigating to a route whose chunk hasn&#x27;t loaded yet only suspends that route&#x27;s slot — a layout (sidebar, nav, etc.) stays mounted while its <code>&lt;Outlet /&gt;</code> content shows the loading fallback. Drop a <code>src/pages/loading.tsx</code> to use your own fallback; without one, Crax renders a small built-in pulse indicator that respects <code>prefers-reduced-motion</code>.</p>
 <p>The layout component must render <code>&lt;Outlet /&gt;</code> to show the active child route:</p>
 <div class="rp-codeblock language-tsx"><div class="rp-codeblock__content rp-codeblock__content--line-numbers"><div class="rp-codeblock__content__scroll-container rp-scrollbar rp-scrollbar--always"><pre class="shiki material-theme-ocean" style="background-color:#0F111A;color:#babed8" tabindex="0" data-lang="tsx"><code><span class="line"><span style="color:#464B5D;font-style:italic">// src/pages/dashboard/layout.tsx</span></span>
-<span class="line"><span style="color:#89DDFF;font-style:italic">import</span><span style="color:#89DDFF"> {</span><span style="color:#BABED8"> Outlet</span><span style="color:#89DDFF"> }</span><span style="color:#89DDFF;font-style:italic"> from</span><span style="color:#89DDFF"> &#x27;</span><span style="color:#C3E88D">react-router-dom</span><span style="color:#89DDFF">&#x27;</span></span>
+<span class="line"><span style="color:#89DDFF;font-style:italic">import</span><span style="color:#89DDFF"> {</span><span style="color:#BABED8"> Outlet</span><span style="color:#89DDFF"> }</span><span style="color:#89DDFF;font-style:italic"> from</span><span style="color:#89DDFF"> &#x27;</span><span style="color:#C3E88D">@crax/router</span><span style="color:#89DDFF">&#x27;</span></span>
 <span class="line"></span>
 <span class="line"><span style="color:#89DDFF;font-style:italic">export</span><span style="color:#89DDFF;font-style:italic"> default</span><span style="color:#C792EA"> function</span><span style="color:#82AAFF"> DashboardLayout</span><span style="color:#89DDFF">()</span><span style="color:#89DDFF"> {</span></span>
 <span class="line"><span style="color:#89DDFF;font-style:italic">  return</span><span style="color:#F07178"> (</span></span>
