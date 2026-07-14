@@ -4,7 +4,7 @@ import { motion } from 'motion/react';
 import { FiFolder, FiZap, FiCrosshair, FiCpu, FiImage, FiPackage, FiLayers, FiGlobe, FiBox } from 'react-icons/fi';
 import { CodeBlock } from '../components';
 
-const BASE_PATH = '';
+const BASE_PATH = '/crax';
 const withBase = (path: string) => `${BASE_PATH}${path}`;
 
 export const frontmatter = {
