@@ -8,7 +8,8 @@
   },
   "files": [
     "dist",
-    "template"
+    "template",
+    "README.md"
   ],
   "scripts": {
     "build": "tsup",
@@ -22,7 +23,7 @@
     "url": "git+https://github.com/craxjs/crax.git",
     "directory": "packages/create-crax-app"
   },
-  "homepage": "https://crax.js.org",
+  "homepage": "https://craxjs.github.io/crax/",
   "bugs": {
     "url": "https://github.com/craxjs/crax/issues"
   },
