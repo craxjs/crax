@@ -46,6 +46,18 @@ Crax does not invent its own data fetching layer, router, or animation system. I
 
 The learning surface is small because the tools are already familiar.
 
+## Built on proven foundations
+
+Crax is built on technologies that power production applications at scale:
+
+- **React 19** - The most widely used UI library
+- **Vite 7** - Fast build tool and dev server
+- **React Router** - Standard routing for React applications
+- **TanStack Query** - Data fetching and cache management
+- **Tailwind CSS v4** - Utility-first CSS framework
+
+These are well-maintained, widely adopted, and backed by large communities. Crax wires them together with conventions, so you get a cohesive framework without betting on experimental tools.
+
 ## Fast and light by default
 
 Frameworks with server-side rendering carry significant overhead: large dependency trees, slow dev server startup, and complex caching layers. Most applications do not need that complexity.
