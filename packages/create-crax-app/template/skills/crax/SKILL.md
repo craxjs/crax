@@ -186,6 +186,8 @@ function Navigation() {
 
 Global state built on `useSyncExternalStore`. No providers, no boilerplate, no re-render pitfalls.
 
+Store state lives in memory only — persists across client-side navigation but resets on full page reload. Persistence adapters (e.g. localStorage sync) are planned but not built yet; use `useStoreEffect` to hydrate/persist manually.
+
 ### Store Organization
 
 **Small projects** — one file `src/stores/index.ts`:
@@ -389,6 +391,8 @@ function AboutPage() {
 }
 ```
 
+`<Head>` must be called unconditionally — before any early returns in your component. It follows React hooks rules.
+
 **Supports:** `<title>`, `<meta>`, `<link>`, `<script>`, Open Graph, Twitter Cards, canonical URLs, language alternates, JSON-LD structured data.
 
 ## View Transitions
@@ -396,14 +400,14 @@ function AboutPage() {
 Native browser page transitions via the View Transitions API.
 
 ```tsx
-import { useViewTransition } from '@crax/hooks/use-view-transition'
+import { useViewTransition } from '@crax/hooks'
 import { Link } from '@crax/router'
 
 function Nav() {
-  const { startViewTransition } = useViewTransition()
+  const { startTransition } = useViewTransition()
 
   const handleClick = () => {
-    startViewTransition(() => {
+    startTransition(() => {
       // state update that triggers the transition
     })
   }
